@@ -5,48 +5,116 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.mivlgu.ReservationSystem.Entities.Classroom;
+import ru.mivlgu.ReservationSystem.Entities.ClassroomEquipment;
+import ru.mivlgu.ReservationSystem.Entities.ClassroomEquipmentId;
+import ru.mivlgu.ReservationSystem.Entities.Equipment;
 import ru.mivlgu.ReservationSystem.Services.ClassroomService;
+import ru.mivlgu.ReservationSystem.Services.EquipmentService;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/classrooms")
 public class ClassroomController {
 
-    @Autowired
-    private ClassroomService classroomService;
+    private final ClassroomService classroomService;
+    private final EquipmentService equipmentService;
 
+    @Autowired
+    public ClassroomController(ClassroomService classroomService, EquipmentService equipmentService) {
+        this.classroomService = classroomService;
+        this.equipmentService = equipmentService;
+    }
+
+    // Страница с перечнем всех аудиторий
     @GetMapping
     public String listClassrooms(Model model) {
         model.addAttribute("classrooms", classroomService.getAllClassrooms());
-        return "classrooms/list";
+        return "classrooms/list";  // Страница со списком аудиторий
     }
 
-    @GetMapping("/{id}")
-    public String viewClassroom(@PathVariable Long id, Model model) {
-        model.addAttribute("classroom", classroomService.getClassroomById(id).orElse(null));
-        return "classrooms/view";
-    }
-
+    // Страница добавления новой аудитории
     @GetMapping("/create")
     public String createClassroomForm(Model model) {
         model.addAttribute("classroom", new Classroom());
-        return "classrooms/create";
+        model.addAttribute("equipmentList", equipmentService.getAllEquipment());  // Передаем список оборудования
+        return "classrooms/create";  // Форма для добавления аудитории
     }
 
+    // Обработка добавления новой аудитории
     @PostMapping("/create")
-    public String createClassroom(@ModelAttribute Classroom classroom) {
-        classroomService.saveClassroom(classroom);
-        return "redirect:/classrooms";
+    public String createClassroom(@ModelAttribute Classroom classroom, @RequestParam("equipmentIds") List<Long> equipmentIds) {
+        // Сохраняем аудиторию
+        classroom = classroomService.saveClassroom(classroom);
+
+        // Добавляем оборудование в аудиторию
+        for (Long equipmentId : equipmentIds) {
+            Equipment equipment = equipmentService.getEquipmentById(equipmentId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid equipment ID: " + equipmentId));
+            ClassroomEquipment classroomEquipment = new ClassroomEquipment();
+            ClassroomEquipmentId id = new ClassroomEquipmentId(classroom.getClassroomId(), equipment.getEquipmentId());
+            classroomEquipment.setId(id);
+            classroomEquipment.setClassroom(classroom);
+            classroomEquipment.setEquipment(equipment);
+            classroomEquipment.setQuantity(1);  // Количество по умолчанию
+            classroomService.saveClassroomEquipment(classroomEquipment);
+        }
+
+        return "redirect:/classrooms";  // Перенаправляем на список аудиторий
     }
 
-    @GetMapping("/equipment")
-    public String listEquipment(Model model) {
-        model.addAttribute("equipment", classroomService.getAllEquipment());
-        return "equipment/list";
+
+    // Страница редактирования аудитории
+    @GetMapping("/edit/{id}")
+    public String editClassroomForm(@PathVariable Long id, Model model) {
+        Classroom classroom = classroomService.getClassroomById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid classroom ID: " + id));
+        model.addAttribute("classroom", classroom);
+        model.addAttribute("equipmentList", equipmentService.getAllEquipment());  // Список оборудования для выбора
+        return "classrooms/edit";  // Страница для редактирования
     }
 
-    @GetMapping("/equipment/{id}")
-    public String viewEquipment(@PathVariable Long id, Model model) {
-        model.addAttribute("equipment", classroomService.getEquipmentById(id).orElse(null));
-        return "equipment/view";
+    // Обработка редактирования аудитории
+    @PostMapping("/edit/{id}")
+    public String editClassroom(@PathVariable Long id, @ModelAttribute Classroom classroom, @RequestParam("equipmentIds") List<Long> equipmentIds) {
+        classroom.setClassroomId(id);
+        classroom = classroomService.saveClassroom(classroom);
+
+        // Обновление оборудования в аудитории
+        classroomService.getClassroomEquipment(id).forEach(classroomEquipment -> {
+            if (!equipmentIds.contains(classroomEquipment.getEquipment().getEquipmentId())) {
+                classroomService.deleteClassroomEquipment(id, classroomEquipment.getEquipment().getEquipmentId());
+            }
+        });
+
+        for (Long equipmentId : equipmentIds) {
+            if (!classroomService.getClassroomEquipment(id).stream().anyMatch(e -> e.getEquipment().getEquipmentId().equals(equipmentId))) {
+                Equipment equipment = equipmentService.getEquipmentById(equipmentId)
+                        .orElseThrow(() -> new IllegalArgumentException("Invalid equipment ID: " + equipmentId));
+
+                // Используем другое имя переменной для составного ключа
+                ClassroomEquipmentId classroomEquipmentId = new ClassroomEquipmentId(classroom.getClassroomId(), equipment.getEquipmentId());
+
+                // Создаем новый объект ClassroomEquipment и устанавливаем составной ключ
+                ClassroomEquipment classroomEquipment = new ClassroomEquipment();
+                classroomEquipment.setId(classroomEquipmentId);  // Устанавливаем составной ключ
+                classroomEquipment.setClassroom(classroom);
+                classroomEquipment.setEquipment(equipment);
+                classroomEquipment.setQuantity(1);  // Количество по умолчанию
+
+                // Сохраняем оборудование в аудитории
+                classroomService.saveClassroomEquipment(classroomEquipment);
+            }
+        }
+
+        return "redirect:/classrooms";  // Перенаправляем на список аудиторий
+    }
+
+
+    // Удалить аудиторию
+    @GetMapping("/delete/{id}")
+    public String deleteClassroom(@PathVariable Long id) {
+        classroomService.deleteClassroom(id);
+        return "redirect:/classrooms";  // Перенаправляем на список аудиторий
     }
 }

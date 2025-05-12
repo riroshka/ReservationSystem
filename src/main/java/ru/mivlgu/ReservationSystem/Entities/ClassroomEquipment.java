@@ -5,16 +5,17 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "classroomequipment")
 public class ClassroomEquipment {
+
     @EmbeddedId
-    private ClassroomEquipmentId id;
+    private ClassroomEquipmentId id;  // Составной ключ
 
     @ManyToOne
-    @MapsId("classroomId")
+    @MapsId("classroomId")  // Использование составного ключа для связывания с Classroom
     @JoinColumn(name = "classroomid")
     private Classroom classroom;
 
     @ManyToOne
-    @MapsId("equipmentId")
+    @MapsId("equipmentId")  // Использование составного ключа для связывания с Equipment
     @JoinColumn(name = "equipmentid")
     private Equipment equipment;
 

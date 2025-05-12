@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Список оборудования</title>
+</head>
+<body>
+<h1>Список оборудования</h1>
+<table border="1">
+  <thead>
+  <tr>
+    <th>Название</th>
+    <th>Описание</th>
+    <th>Действия</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="item : ${equipmentList}">
+    <td th:text="${item.name}"></td>
+    <td th:text="${item.description}"></td>
+    <td>
+      <a th:href="@{/equipment/edit/{id}(id=${item.equipmentId})}">Редактировать</a> |
+      <a th:href="@{/equipment/delete/{id}(id=${item.equipmentId})}">Удалить</a>
+    </td>
+  </tr>
+  </tbody>
+</table>
+<a href="/equipment/create">Добавить новое оборудование</a>
+</body>
+</html>

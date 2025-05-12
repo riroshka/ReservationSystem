@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Добавить новое оборудование</title>
+</head>
+<body>
+<h1>Добавить новое оборудование</h1>
+<form action="/equipment/create" method="post">
+  <label for="name">Название:</label>
+  <input type="text" id="name" name="name" required><br><br>
+
+  <label for="description">Описание:</label>
+  <input type="text" id="description" name="description"><br><br>
+
+  <button type="submit">Сохранить</button>
+</form>
+<a href="/equipment">Назад</a>
+</body>
+</html>

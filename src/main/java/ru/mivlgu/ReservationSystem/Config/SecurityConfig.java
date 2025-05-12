@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .formLogin(login -> login
                         .loginPage("/login")
                         .permitAll()
-                        .defaultSuccessUrl("/events", true)  // Перенаправление после успешного входа
+                        .defaultSuccessUrl("/events", true)
                 )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
@@ -51,16 +51,14 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // DaoAuthenticationProvider для аутентификации через базу данных
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userService); // Пользовательский сервис для аутентификации
-        authenticationProvider.setPasswordEncoder(passwordEncoder()); // Настройка шифрования паролей
+        authenticationProvider.setUserDetailsService(userService);
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }
 
-    // AuthenticationManager для аутентификации
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         return http.getSharedObject(AuthenticationManagerBuilder.class)

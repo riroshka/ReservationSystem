@@ -1,13 +1,13 @@
 package ru.mivlgu.ReservationSystem.Entities;
 
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "classrooms")
 public class Classroom {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "classroomid")
@@ -25,7 +25,7 @@ public class Classroom {
     @Column(nullable = false)
     private Boolean status = true;
 
-    @OneToMany(mappedBy = "classroom", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "classroom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ClassroomEquipment> equipmentList = new ArrayList<>();
 
     public Classroom(Long classroomId, String name, Integer capacity, String location, Boolean status, List<ClassroomEquipment> equipmentList) {

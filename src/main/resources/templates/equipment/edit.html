@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Редактировать оборудование</title>
+</head>
+<body>
+<h1>Редактировать оборудование</h1>
+<form action="/equipment/edit/{id}" method="post" th:action="@{/equipment/edit/{id}(id=${equipment.equipmentId})}">
+  <label for="name">Название:</label>
+  <input type="text" id="name" name="name" th:value="${equipment.name}" required><br><br>
+
+  <label for="description">Описание:</label>
+  <input type="text" id="description" name="description" th:value="${equipment.description}"><br><br>
+
+  <button type="submit">Сохранить изменения</button>
+</form>
+<a href="/equipment">Назад</a>
+</body>
+</html>

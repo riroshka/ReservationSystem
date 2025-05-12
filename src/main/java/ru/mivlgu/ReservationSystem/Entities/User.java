@@ -19,6 +19,9 @@ public class User implements Serializable {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false, unique = true)
+    private String login;
+
     @Column(name = "passwordhash", nullable = false)
     private String passwordHash;
 
@@ -29,13 +32,18 @@ public class User implements Serializable {
     @Column(name = "studentgroup")
     private String studentGroup;
 
-    public User(Long userId, String fullName, String email, String passwordHash, UserRole role, String studentGroup) {
+    @Column(name = "phonenumber", nullable = false)
+    private String phoneNumber;
+
+    public User(Long userId, String fullName, String email, String login, String passwordHash, UserRole role, String studentGroup, String phoneNumber) {
         this.userId = userId;
         this.fullName = fullName;
         this.email = email;
+        this.login = login;
         this.passwordHash = passwordHash;
         this.role = role;
         this.studentGroup = studentGroup;
+        this.phoneNumber = phoneNumber;
     }
 
     public User() {
@@ -65,6 +73,14 @@ public class User implements Serializable {
         this.email = email;
     }
 
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
     public String getPasswordHash() {
         return passwordHash;
     }
@@ -87,5 +103,13 @@ public class User implements Serializable {
 
     public void setStudentGroup(String studentGroup) {
         this.studentGroup = studentGroup;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

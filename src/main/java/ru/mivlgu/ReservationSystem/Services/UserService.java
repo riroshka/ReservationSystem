@@ -17,16 +17,16 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        // Ищем пользователя по email
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(username)
+                .orElseGet(() -> userRepository.findByLogin(username)
+                        .orElseGet(() -> userRepository.findByPhoneNumber(username)
+                                .orElseThrow(() -> new UsernameNotFoundException("User not found with email, login, or phone number: " + username))));
 
-        // Возвращаем объект UserDetails
         return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())  // Используем email как логин
-                .password(user.getPasswordHash()) // Устанавливаем зашифрованный пароль
-                .roles(user.getRole().name()) // Преобразуем роль в строку
+                .username(user.getEmail())
+                .password(user.getPasswordHash())
+                .roles(user.getRole().name())
                 .build();
     }
 }

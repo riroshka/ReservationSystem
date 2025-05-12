@@ -5,13 +5,14 @@
 </head>
 <body>
 <h1>Список аудиторий</h1>
-<table>
+<table border="1">
   <thead>
   <tr>
     <th>Название</th>
     <th>Вместимость</th>
     <th>Локация</th>
     <th>Статус</th>
+    <th>Оборудование</th>  <!-- Новый столбец для отображения оборудования -->
     <th>Действия</th>
   </tr>
   </thead>
@@ -22,11 +23,17 @@
     <td th:text="${classroom.location}"></td>
     <td th:text="${classroom.status ? 'Активна' : 'Неактивна'}"></td>
     <td>
-      <a th:href="@{/classrooms/{id}(id=${classroom.classroomId})}">Просмотр</a>
+      <!-- Перечень оборудования, связанного с этой аудиторией -->
+      <span th:each="classroomEquip : ${classroom.equipmentList}"
+            th:text="${classroomEquip.equipment.name}">Оборудование</span>
+    </td>
+    <td>
+      <a th:href="@{/classrooms/edit/{id}(id=${classroom.classroomId})}">Редактировать</a> |
+      <a th:href="@{/classrooms/delete/{id}(id=${classroom.classroomId})}">Удалить</a>
     </td>
   </tr>
   </tbody>
 </table>
-<a href="/classrooms/create">Добавить аудиторию</a>
+<a href="/classrooms/create">Добавить новую аудиторию</a>
 </body>
 </html>

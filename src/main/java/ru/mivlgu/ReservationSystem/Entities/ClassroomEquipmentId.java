@@ -7,19 +7,20 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
-class ClassroomEquipmentId implements Serializable {
+public class ClassroomEquipmentId implements Serializable {
+
     @Column(name = "classroomid")
     private Long classroomId;
 
     @Column(name = "equipmentid")
     private Long equipmentId;
 
+    public ClassroomEquipmentId() {
+    }
+
     public ClassroomEquipmentId(Long classroomId, Long equipmentId) {
         this.classroomId = classroomId;
         this.equipmentId = equipmentId;
-    }
-
-    public ClassroomEquipmentId() {
     }
 
     public Long getClassroomId() {
@@ -40,6 +41,7 @@ class ClassroomEquipmentId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ClassroomEquipmentId that = (ClassroomEquipmentId) o;
         return Objects.equals(classroomId, that.classroomId) && Objects.equals(equipmentId, that.equipmentId);

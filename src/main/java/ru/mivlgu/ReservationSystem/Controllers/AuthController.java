@@ -9,17 +9,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import ru.mivlgu.ReservationSystem.Entities.User;
 import ru.mivlgu.ReservationSystem.Enums.UserRole;
 import ru.mivlgu.ReservationSystem.Repositories.UserRepository;
-import ru.mivlgu.ReservationSystem.Services.UserService;
 
 @Controller
 public class AuthController {
 
-    private final UserService userService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthController(UserService userService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userService = userService;
+    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -31,21 +28,18 @@ public class AuthController {
 
     @PostMapping("/register")
     public String registerUser(@ModelAttribute User user) {
-        // Шифруем пароль перед сохранением
+
         user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
 
-        // Устанавливаем роль GUEST по умолчанию
         user.setRole(UserRole.GUEST);
 
-        // Сохраняем нового пользователя
         userRepository.save(user);
 
-        return "redirect:/login";  // После регистрации перенаправляем на страницу логина
+        return "redirect:/login";
     }
 
     @GetMapping("/login")
     public String loginPage() {
         return "login";
     }
-
 }
