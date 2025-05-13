@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Фильтрация аудиторий</title>
+</head>
+<body>
+<h1>Фильтрация аудиторий</h1>
+<form action="/filter-classrooms" method="get">
+    <label for="capacity">Вместимость (до):</label>
+    <input type="number" id="capacity" name="capacity"><br><br>
+
+    <label for="equipment">Необходимое оборудование:</label>
+    <select name="equipment" id="equipment">
+        <option th:each="equipment : ${equipmentList}"
+                th:value="${equipment.equipmentId}"
+                th:text="${equipment.name}"></option>
+    </select><br><br>
+
+    <button type="submit">Применить фильтры</button>
+</form>
+
+<h2>Доступные аудитории:</h2>
+<ul>
+    <li th:each="classroom : ${classrooms}">
+        <span th:text="${classroom.name}">Аудитория</span> -
+        <span th:text="${classroom.capacity}">Вместимость</span> -
+        <span th:text="${classroom.location}">Местоположение</span>
+    </li>
+</ul>
+
+<a href="/create-event">Перейти к созданию мероприятия</a>
+</body>
+</html>

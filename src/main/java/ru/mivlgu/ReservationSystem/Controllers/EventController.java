@@ -3,50 +3,51 @@ package ru.mivlgu.ReservationSystem.Controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.mivlgu.ReservationSystem.Entities.Event;
-import ru.mivlgu.ReservationSystem.Entities.EventComments;
-import ru.mivlgu.ReservationSystem.Services.EventService;
+import ru.mivlgu.ReservationSystem.Entities.Classroom;
+import ru.mivlgu.ReservationSystem.Repositories.EventRepository;
+import ru.mivlgu.ReservationSystem.Repositories.ClassroomRepository;
+
+import java.time.LocalDateTime;
 
 @Controller
-@RequestMapping("/events")
 public class EventController {
 
+    private final EventRepository eventRepository;
+    private final ClassroomRepository classroomRepository;
+
     @Autowired
-    private EventService eventService;
-
-    @GetMapping
-    public String listEvents(Model model) {
-        model.addAttribute("events", eventService.getAllEvents());
-        return "events/list";
+    public EventController(EventRepository eventRepository, ClassroomRepository classroomRepository) {
+        this.eventRepository = eventRepository;
+        this.classroomRepository = classroomRepository;
+    }
+/*
+    @GetMapping("/create-event")
+    public String createEventPage(Model model) {
+        model.addAttribute("classrooms", classroomRepository.findAll()); // Отображаем все аудитории
+        return "create-event"; // Страница для создания мероприятия
     }
 
-    @GetMapping("/{id}")
-    public String viewEvent(@PathVariable Long id, Model model) {
-        model.addAttribute("event", eventService.getEventById(id).orElse(null));
-        model.addAttribute("comments", eventService.getCommentsByEventId(id));
-        return "events/view";
-    }
+    @PostMapping("/create-event")
+    public String createEvent(@RequestParam("title") String title,
+                              @RequestParam("description") String description,
+                              @RequestParam("classroomId") Long classroomId,
+                              @RequestParam("startDateTime") String startDateTime,
+                              @RequestParam("endDateTime") String endDateTime) {
+        // Логика для создания мероприятия
+        Event event = new Event();
+        event.setTitle(title);
+        event.setDescription(description);
+        event.setStartDateTime(LocalDateTime.parse(startDateTime));
+        event.setEndDateTime(LocalDateTime.parse(endDateTime));
+        event.setClassroom(classroomRepository.findById(classroomId).orElse(null));
 
-    @GetMapping("/create")
-    public String createEventForm(Model model) {
-        model.addAttribute("event", new Event());
-        return "events/create";
+        // Сохранение мероприятия
+        eventRepository.save(event);
+        return "redirect:/events"; // После сохранения перенаправление на список мероприятий
     }
-
-    @PostMapping("/create")
-    public String createEvent(@ModelAttribute Event event) {
-        eventService.saveEvent(event);
-        return "redirect:/events";
-    }
-
-    @PostMapping("/{eventId}/comment")
-    public String addComment(@PathVariable Long eventId, @ModelAttribute EventComments comment) {
-        Event event = eventService.getEventById(eventId).orElse(null);
-        if (event != null) {
-            comment.setEvent(event);
-            eventService.saveComment(comment);
-        }
-        return "redirect:/events/" + eventId;
-    }
+ */
 }

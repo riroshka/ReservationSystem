@@ -63,7 +63,6 @@ public class ClassroomController {
         return "redirect:/classrooms";  // Перенаправляем на список аудиторий
     }
 
-
     // Страница редактирования аудитории
     @GetMapping("/edit/{id}")
     public String editClassroomForm(@PathVariable Long id, Model model) {
@@ -110,11 +109,32 @@ public class ClassroomController {
         return "redirect:/classrooms";  // Перенаправляем на список аудиторий
     }
 
-
     // Удалить аудиторию
     @GetMapping("/delete/{id}")
     public String deleteClassroom(@PathVariable Long id) {
         classroomService.deleteClassroom(id);
         return "redirect:/classrooms";  // Перенаправляем на список аудиторий
     }
+
+    @GetMapping("/filter-classrooms")
+    public String filterClassrooms(@RequestParam(name = "capacity", required = false) Integer capacity,
+                                   @RequestParam(name = "equipment", required = false) Long equipmentId,
+                                   Model model) {
+        List<Classroom> classrooms;
+
+        if (capacity != null && equipmentId != null) {
+            classrooms = classroomService.findByCapacityAndEquipment(capacity, equipmentId);
+        } else if (capacity != null) {
+            classrooms = classroomService.findByCapacity(capacity);
+        } else if (equipmentId != null) {
+            classrooms = classroomService.findByEquipment(equipmentId);
+        } else {
+            classrooms = classroomService.getAllClassrooms();
+        }
+
+        model.addAttribute("classrooms", classrooms);
+        model.addAttribute("equipmentList", equipmentService.getAllEquipment()); // Получаем список оборудования
+        return "classrooms/classroom-list"; // Страница с отфильтрованными аудиториями
+    }
+
 }

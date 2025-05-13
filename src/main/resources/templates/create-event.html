@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Создание мероприятия</title>
+</head>
+<body>
+<h1>Создание мероприятия</h1>
+<form action="/create-event" method="post">
+  <label for="title">Название мероприятия:</label>
+  <input type="text" id="title" name="title" required><br><br>
+
+  <label for="description">Описание мероприятия:</label>
+  <textarea id="description" name="description" required></textarea><br><br>
+
+  <label for="classroomId">Выберите аудиторию:</label>
+  <select name="classroomId" id="classroomId" required>
+    <option th:each="classroom : ${classrooms}"
+            th:value="${classroom.classroomId}"
+            th:text="${classroom.name}"></option>
+  </select><br><br>
+
+  <label for="startDateTime">Дата и время начала:</label>
+  <input type="datetime-local" id="startDateTime" name="startDateTime" required><br><br>
+
+  <label for="endDateTime">Дата и время окончания:</label>
+  <input type="datetime-local" id="endDateTime" name="endDateTime" required><br><br>
+
+  <button type="submit">Создать мероприятие</button>
+</form>
+</body>
+</html>

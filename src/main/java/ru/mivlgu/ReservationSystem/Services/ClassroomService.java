@@ -63,4 +63,16 @@ public class ClassroomService {
     public void deleteClassroomEquipment(Long classroomId, Long equipmentId) {
         classroomEquipmentRepository.deleteById(new ClassroomEquipmentId(classroomId, equipmentId));
     }
+
+    public List<Classroom> findByCapacity(Integer capacity) {
+        return classroomRepository.findByCapacityLessThanEqual(capacity);
+    }
+
+    public List<Classroom> findByEquipment(Long equipmentId) {
+        return classroomRepository.findByEquipmentList_Equipment_EquipmentId(equipmentId);
+    }
+
+    public List<Classroom> findByCapacityAndEquipment(Integer capacity, Long equipmentId) {
+        return classroomRepository.findByCapacityLessThanEqualAndEquipmentList_Equipment_EquipmentId(capacity, equipmentId);
+    }
 }
