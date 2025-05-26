@@ -12,6 +12,7 @@ import ru.mivlgu.ReservationSystem.Repositories.EventRepository;
 import ru.mivlgu.ReservationSystem.Repositories.ClassroomRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 public class EventController {
@@ -24,30 +25,22 @@ public class EventController {
         this.eventRepository = eventRepository;
         this.classroomRepository = classroomRepository;
     }
-/*
-    @GetMapping("/create-event")
-    public String createEventPage(Model model) {
-        model.addAttribute("classrooms", classroomRepository.findAll()); // Отображаем все аудитории
-        return "create-event"; // Страница для создания мероприятия
+    // Страница со списком мероприятий
+    @GetMapping("/events")
+    public String listEvents(Model model) {
+        // Получаем список всех мероприятий
+        List<Event> events = eventRepository.findAll();
+
+        // Проверка, что данные действительно загружены
+        if (events.isEmpty()) {
+            System.out.println("Нет мероприятий в базе данных.");
+        } else {
+            System.out.println("Найдено " + events.size() + " мероприятий.");
+        }
+
+        model.addAttribute("events", events); // Добавляем список мероприятий в модель
+        return "event-list"; // Название страницы с событием
     }
 
-    @PostMapping("/create-event")
-    public String createEvent(@RequestParam("title") String title,
-                              @RequestParam("description") String description,
-                              @RequestParam("classroomId") Long classroomId,
-                              @RequestParam("startDateTime") String startDateTime,
-                              @RequestParam("endDateTime") String endDateTime) {
-        // Логика для создания мероприятия
-        Event event = new Event();
-        event.setTitle(title);
-        event.setDescription(description);
-        event.setStartDateTime(LocalDateTime.parse(startDateTime));
-        event.setEndDateTime(LocalDateTime.parse(endDateTime));
-        event.setClassroom(classroomRepository.findById(classroomId).orElse(null));
 
-        // Сохранение мероприятия
-        eventRepository.save(event);
-        return "redirect:/events"; // После сохранения перенаправление на список мероприятий
-    }
- */
 }

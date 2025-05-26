@@ -21,22 +21,14 @@ public class EventEquipmentRequirement {
     @Column(nullable = false)
     private Integer quantity = 1;
 
+    public EventEquipmentRequirement() {
+    }
+
     public EventEquipmentRequirement(EventEquipmentRequirementId id, Event event, Equipment equipment, Integer quantity) {
         this.id = id;
         this.event = event;
         this.equipment = equipment;
         this.quantity = quantity;
-    }
-
-    public EventEquipmentRequirement() {
-    }
-
-    public EventEquipmentRequirementId getId() {
-        return id;
-    }
-
-    public void setId(EventEquipmentRequirementId id) {
-        this.id = id;
     }
 
     public Event getEvent() {
@@ -62,5 +54,14 @@ public class EventEquipmentRequirement {
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
+
+    public EventEquipmentRequirementId getId() {
+        return id;
+    }
+
+    public void setId(EventEquipmentRequirementId id) {
+        this.id = id;
+    }
 }
+
 

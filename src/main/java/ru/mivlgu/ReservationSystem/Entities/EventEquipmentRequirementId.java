@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
-class EventEquipmentRequirementId implements Serializable {
+public class EventEquipmentRequirementId implements Serializable {
     @Column(name = "eventid")
     private Long eventId;
 

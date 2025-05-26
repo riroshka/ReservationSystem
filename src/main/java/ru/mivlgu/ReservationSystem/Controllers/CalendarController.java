@@ -18,8 +18,4 @@ public class CalendarController {
         this.eventRepository = eventRepository;
     }
 
-    @GetMapping("/events")
-    public List<Event> getEvents() {
-        return eventRepository.findAll(); // Возвращаем все события
-    }
 }

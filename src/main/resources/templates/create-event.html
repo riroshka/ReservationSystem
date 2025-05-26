@@ -19,13 +19,65 @@
             th:text="${classroom.name}"></option>
   </select><br><br>
 
-  <label for="startDateTime">Дата и время начала:</label>
-  <input type="datetime-local" id="startDateTime" name="startDateTime" required><br><br>
+  <!-- Выбор даты без времени -->
+  <label for="date">Выберите дату:</label>
+  <input type="date" id="date" name="date" required>
 
-  <label for="endDateTime">Дата и время окончания:</label>
-  <input type="datetime-local" id="endDateTime" name="endDateTime" required><br><br>
+  <!-- Доступные временные интервалы -->
+  <div id="availableTimes" style="display:none;">
+    <label>Выберите время:</label><br>
+    <input type="radio" id="time1" name="time" value="08:30-10:00">
+    <label for="time1">1 пара (08:30 - 10:00)</label><br>
+    <input type="radio" id="time2" name="time" value="10:15-11:45">
+    <label for="time2">2 пара (10:15 - 11:45)</label><br>
+    <input type="radio" id="time3" name="time" value="12:30-14:00">
+    <label for="time3">3 пара (12:30 - 14:00)</label><br>
+    <input type="radio" id="time4" name="time" value="14:15-15:45">
+    <label for="time4">4 пара (14:15 - 15:45)</label><br>
+    <input type="radio" id="time5" name="time" value="16:00-17:30">
+    <label for="time5">5 пара (16:00 - 17:30)</label><br>
+    <input type="radio" id="time6" name="time" value="17:45-19:15">
+    <label for="time6">6 пара (17:45 - 19:15)</label><br>
+    <input type="radio" id="time7" name="time" value="19:30-21:00">
+    <label for="time7">7 пара (19:30 - 21:00)</label><br>
+  </div>
+
+  <!-- Скрытые поля для начала и окончания времени -->
+  <input type="hidden" id="startDateTime" name="startDateTime">
+  <input type="hidden" id="endDateTime" name="endDateTime">
+
+  <label for="equipmentIds">Выберите оборудование:</label>
+  <select name="equipmentIds" id="equipmentIds" multiple>
+    <option th:each="equipment : ${equipments}"
+            th:value="${equipment.equipmentId}"
+            th:text="${equipment.name}"></option>
+  </select><br><br>
 
   <button type="submit">Создать мероприятие</button>
 </form>
+
+<script>
+  // Отображение доступных временных интервалов при выборе даты
+  document.getElementById('date').addEventListener('change', function () {
+      document.getElementById('availableTimes').style.display = 'block';
+  });
+
+  // Слушатель на изменение времени
+  document.querySelectorAll('input[name="time"]').forEach(function(input) {
+      input.addEventListener('change', function() {
+          const timeValue = this.value;
+          const dateValue = document.getElementById('date').value;
+
+          // Парсим выбранное время
+          const [startTime, endTime] = timeValue.split('-');
+          const startDateTime = `${dateValue}T${startTime}:00`;
+          const endDateTime = `${dateValue}T${endTime}:00`;
+
+          // Заполняем скрытые поля startDateTime и endDateTime
+          document.getElementById('startDateTime').value = startDateTime;
+          document.getElementById('endDateTime').value = endDateTime;
+      });
+  });
+</script>
 </body>
 </html>

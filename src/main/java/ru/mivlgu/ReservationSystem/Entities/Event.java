@@ -45,6 +45,10 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     private List<EventEquipmentRequirement> equipmentRequirements = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "templateid", nullable = false)
+    private EventTemplate eventTemplate;
+
     public Event(Long eventId, String title, String description, LocalDateTime startDateTime, LocalDateTime endDateTime, EventStatus status, User creator, Classroom classroom, String qrCodePath, List<EventEquipmentRequirement> equipmentRequirements) {
         this.eventId = eventId;
         this.title = title;
@@ -139,5 +143,13 @@ public class Event {
 
     public void setEquipmentRequirements(List<EventEquipmentRequirement> equipmentRequirements) {
         this.equipmentRequirements = equipmentRequirements;
+    }
+
+    public EventTemplate getEventTemplate() {
+        return eventTemplate;
+    }
+
+    public void setEventTemplate(EventTemplate eventTemplate) {
+        this.eventTemplate = eventTemplate;
     }
 }
