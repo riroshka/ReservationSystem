@@ -46,10 +46,20 @@ public class Event {
     private List<EventEquipmentRequirement> equipmentRequirements = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "templateid", nullable = false)
+    @JoinColumn(name = "templateid")
     private EventTemplate eventTemplate;
 
-    public Event(Long eventId, String title, String description, LocalDateTime startDateTime, LocalDateTime endDateTime, EventStatus status, User creator, Classroom classroom, String qrCodePath, List<EventEquipmentRequirement> equipmentRequirements) {
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    private List<EventComment> comments = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "scheduleid")
+    private Schedule schedule;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    private List<EventRegistration> registrations;
+
+    public Event(Long eventId, String title, String description, LocalDateTime startDateTime, LocalDateTime endDateTime, EventStatus status, User creator, Classroom classroom, String qrCodePath, List<EventEquipmentRequirement> equipmentRequirements, EventTemplate eventTemplate, List<EventComment> comments, Schedule schedule, List<EventRegistration> registrations) {
         this.eventId = eventId;
         this.title = title;
         this.description = description;
@@ -60,6 +70,10 @@ public class Event {
         this.classroom = classroom;
         this.qrCodePath = qrCodePath;
         this.equipmentRequirements = equipmentRequirements;
+        this.eventTemplate = eventTemplate;
+        this.comments = comments;
+        this.schedule = schedule;
+        this.registrations = registrations;
     }
 
     public Event() {
@@ -145,11 +159,35 @@ public class Event {
         this.equipmentRequirements = equipmentRequirements;
     }
 
+    public List<EventComment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<EventComment> comments) {
+        this.comments = comments;
+    }
+
     public EventTemplate getEventTemplate() {
         return eventTemplate;
     }
 
     public void setEventTemplate(EventTemplate eventTemplate) {
         this.eventTemplate = eventTemplate;
+    }
+
+    public Schedule getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
+    }
+
+    public List<EventRegistration> getRegistrations() {
+        return registrations;
+    }
+
+    public void setRegistrations(List<EventRegistration> registrations) {
+        this.registrations = registrations;
     }
 }

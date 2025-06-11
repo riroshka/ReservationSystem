@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="fragments/header :: head(pageTitle='Рассмотрение заявки')">
+  <meta charset="UTF-8">
+  <title>Рассмотрение заявки</title>
+  <link rel="stylesheet" type="text/css" href="/css/styles.css">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="edit-form-container">
+  <h1>Рассмотрение заявки</h1>
+
+  <div class="event-details">
+    <p><strong>Мероприятие:</strong> <span th:text="${event.title}"></span></p>
+    <p><strong>Описание:</strong> <span th:text="${event.description}"></span></p>
+    <p><strong>Статус:</strong> <span th:text="${event.status}"></span></p>
+  </div>
+
+  <div class="form-group" style="margin-top: 30px;">
+    <h4>Комментарии</h4>
+    <ul class="equipment-table-container">
+      <li th:each="comment : ${event.comments}" style="padding: 10px; border-bottom: 1px solid #eee;">
+        <span th:text="${comment.commentText}"></span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="form-group">
+    <h4>Оборудование</h4>
+    <ul class="equipment-table-container">
+      <li th:each="equip : ${event.equipmentRequirements}" style="padding: 10px; border-bottom: 1px solid #eee;">
+        <span th:text="${equip.equipment.name}"></span>
+      </li>
+    </ul>
+  </div>
+
+  <div style="margin-top: 40px;">
+    <h4>Подтверждение заявки</h4>
+
+    <form action="#" th:action="@{/admin/events/approve/{eventId}(eventId=${event.eventId})}" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="name">Название шаблона:</label>
+        <input type="text" name="name" id="name" th:value="${event.title}" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="description">Описание шаблона:</label>
+        <textarea name="description" id="description" class="form-control" th:text="${event.description}"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="photo">Выберите фото для шаблона (необязательно):</label>
+        <input type="file" name="photo" id="photo">
+      </div>
+
+      <div>
+        <label for="postToVK">Выкладывать пост в ВКонтакте</label>
+        <input type="checkbox" id="postToVK" name="postToVK" checked />
+      </div>
+
+      <div class="row" style="margin-top: 30px;">
+        <button type="submit" class="btn">Подтвердить</button>
+        <a href="/admin/events/requests" class="btn" style="margin-left: 15px;">Назад</a>
+      </div>
+    </form>
+  </div>
+
+  <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+    <form action="#" th:action="@{/admin/events/reject/{eventId}(eventId=${event.eventId})}" method="post">
+      <div class="form-group">
+        <h4>Отклонение заявки</h4>
+      </div>
+      <button type="submit" class="btn" style="background-color: #f8f8f8;">Отклонить</button>
+    </form>
+  </div>
+</div>
+
+<script src="/js/scripts.js"></script>
+</body>
+</html>

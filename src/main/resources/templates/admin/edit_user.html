@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head(pageTitle='Редактирование пользователя')">
+  <title>Редактировать пользователя</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const role = "[[${user.role}]]";
+      const groupField = document.getElementById('groupField');
+
+      if (role === 'STUDENT') {
+        groupField.style.display = 'block';
+      } else {
+        groupField.style.display = 'none';
+      }
+
+      document.getElementById('role').addEventListener('change', function() {
+        if (this.value === 'STUDENT') {
+          groupField.style.display = 'block';
+        } else {
+          groupField.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+<div class="edit-form-container">
+  <h1>Редактирование пользователя</h1>
+  <form th:action="@{/admin/users/edit/{id}(id=${user.userId})}" method="post">
+    <input type="hidden" th:field="${user.userId}" />
+
+    <div class="form-group">
+      <label for="fullName">ФИО:</label>
+      <input type="text" id="fullName" th:field="${user.fullName}" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input type="email" id="email" th:field="${user.email}" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="login">Логин:</label>
+      <input type="text" id="login" th:field="${user.login}" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="phoneNumber">Телефон:</label>
+      <input type="tel" id="phoneNumber" th:field="${user.phoneNumber}" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="role">Роль:</label>
+      <select id="role" th:field="${user.role}" class="form-control" required>
+        <option value="ADMIN">Администратор</option>
+        <option value="TEACHER">Преподаватель</option>
+        <option value="STUDENT">Студент</option>
+        <option value="GUEST">Гость</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="groupField">
+      <label for="studentGroup">Учебная группа:</label>
+      <input type="text" id="studentGroup" th:field="${user.studentGroup}" class="form-control">
+    </div>
+
+    <button type="submit" class="btn">Сохранить изменения</button>
+  </form>
+  <a href="/admin/users" class="btn">Назад к списку</a>
+</div>
+</body>
+</html>

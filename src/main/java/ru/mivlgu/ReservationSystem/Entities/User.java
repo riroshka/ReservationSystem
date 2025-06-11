@@ -1,6 +1,9 @@
 package ru.mivlgu.ReservationSystem.Entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import ru.mivlgu.ReservationSystem.Enums.UserRole;
 
 import java.io.Serializable;
@@ -13,12 +16,15 @@ public class User implements Serializable {
     @Column(name = "userid")
     private Long userId;
 
+    @NotBlank(message = "ФИО обязательно")
     @Column(name = "fullname", nullable = false)
     private String fullName;
 
+    @Email(message = "Некорректный email")
     @Column(nullable = false, unique = true)
     private String email;
 
+    @NotBlank(message = "Логин обязателен")
     @Column(nullable = false, unique = true)
     private String login;
 
@@ -32,8 +38,10 @@ public class User implements Serializable {
     @Column(name = "studentgroup")
     private String studentGroup;
 
+    @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Некорректный номер телефона")
     @Column(name = "phonenumber", nullable = false)
     private String phoneNumber;
+
 
     public User(Long userId, String fullName, String email, String login, String passwordHash, UserRole role, String studentGroup, String phoneNumber) {
         this.userId = userId;
@@ -112,4 +120,6 @@ public class User implements Serializable {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
+
+
 }

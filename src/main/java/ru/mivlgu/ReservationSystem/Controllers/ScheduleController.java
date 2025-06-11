@@ -29,7 +29,7 @@ public class ScheduleController {
         this.classroomService = classroomService;
         this.eventService = eventService;
     }
-
+/*
     // Страница с календарем расписания
     @GetMapping
     public String showSchedule(@RequestParam(value = "date", required = false) String date, Model model) {
@@ -48,7 +48,7 @@ public class ScheduleController {
 
         return "schedule/calendar";  // Страница с календарем и расписанием
     }
-
+*/
     // Страница для добавления нового расписания
     @GetMapping("/create")
     public String createScheduleForm(@RequestParam("classroomId") Long classroomId,

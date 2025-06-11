@@ -5,26 +5,28 @@
   <link rel="stylesheet" type="text/css" href="/css/styles.css">
 </head>
 <body>
-<h1>Вход в систему</h1>
+<div class="form-container">
+  <h1>Вход в систему</h1>
 
-<!-- Форма для логина -->
-<form action="/login" method="post">
-  <label for="username">Логин, электронная почта или номер телефона:</label>
-  <input type="text" id="username" name="username" required placeholder="Введите ваш логин, email или телефон"><br><br>
+  <!-- Форма для логина -->
+  <form action="/login" method="post">
+    <label for="username">Логин, электронная почта или номер телефона:</label>
+    <input type="text" id="username" name="username" required placeholder="Введите ваш логин, email или телефон">
 
-  <label for="password">Пароль:</label>
-  <input type="password" id="password" name="password" required placeholder="Введите пароль"><br><br>
+    <label for="password">Пароль:</label>
+    <input type="password" id="password" name="password" required placeholder="Введите пароль">
 
-  <!-- Если есть ошибка при входе, показываем сообщение -->
-  <div th:if="${param.error}">
-    <p style="color:red;">Неверный логин или пароль</p>
-  </div>
+    <!-- Если есть ошибка при входе, показываем сообщение -->
+    <div th:if="${param.error}" class="error-message">
+      <p>Неверный логин или пароль</p>
+    </div>
 
-  <!-- Ссылка на страницу регистрации -->
-  <p>Нет аккаунта? <a href="/register">Зарегистрируйтесь</a></p>
+    <!-- Кнопка входа -->
+    <button type="submit">Войти</button>
 
-  <!-- Кнопка входа -->
-  <button type="submit">Войти</button>
-</form>
+    <!-- Ссылка на страницу регистрации -->
+    <p>Нет аккаунта? <a href="/register">Зарегистрируйтесь</a></p>
+  </form>
+</div>
 </body>
 </html>

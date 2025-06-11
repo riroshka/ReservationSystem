@@ -31,13 +31,17 @@ public class EventRegistration {
     @Column(name = "isstudent", nullable = false)
     private boolean isStudent;
 
-    public EventRegistration(Long registrationID, Event event, User user, LocalDateTime registrationDate, RegistrationStatus status, boolean isStudent) {
+    @Column(name = "qrcode", columnDefinition = "TEXT")
+    private String qrCode;
+
+    public EventRegistration(Long registrationID, Event event, User user, LocalDateTime registrationDate, RegistrationStatus status, boolean isStudent, String qrCode) {
         this.registrationID = registrationID;
         this.event = event;
         this.user = user;
         this.registrationDate = registrationDate;
         this.status = status;
         this.isStudent = isStudent;
+        this.qrCode = qrCode;
     }
 
     public EventRegistration() {
@@ -89,5 +93,13 @@ public class EventRegistration {
 
     public void setStudent(boolean student) {
         isStudent = student;
+    }
+
+    public String getQrCode() {
+        return qrCode;
+    }
+
+    public void setQrCode(String qrCode) {
+        this.qrCode = qrCode;
     }
 }

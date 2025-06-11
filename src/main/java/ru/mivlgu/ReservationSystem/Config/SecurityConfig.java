@@ -1,5 +1,6 @@
 package ru.mivlgu.ReservationSystem.Config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -19,8 +20,14 @@ import ru.mivlgu.ReservationSystem.Services.UserService;
 @Configuration
 public class SecurityConfig {
     private final UserService userService;
-
+    private final UserDetailsService userDetailsService;
+/*
     public SecurityConfig(@Lazy UserService userService) {
+        this.userService = userService;
+    }
+ */
+    public SecurityConfig(@Qualifier("customUserDetailsService") UserDetailsService userDetailsService, @Lazy UserService userService) {
+        this.userDetailsService = userDetailsService;
         this.userService = userService;
     }
 
@@ -35,8 +42,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/register", "/login", "/css/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/register", "/login", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "TEACHER")
+                        .requestMatchers("/submit-request").hasAnyRole("ADMIN", "TEACHER")
                         .anyRequest().authenticated()
                 )
                 .formLogin(login -> login
@@ -62,8 +70,9 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .authenticationProvider(authenticationProvider()) // Использование DaoAuthenticationProvider
+                .authenticationProvider(authenticationProvider())
                 .build();
     }
 
 }
+

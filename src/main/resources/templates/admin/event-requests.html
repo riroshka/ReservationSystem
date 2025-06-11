@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:replace="fragments/header :: head(pageTitle='Заявки на мероприятия')">
+  <meta charset="UTF-8">
+  <title>Заявки на мероприятия</title>
+  <link rel="stylesheet" type="text/css" href="/css/styles.css">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="applications-table-container">
+  <h1>Заявки на мероприятия</h1>
+  <table class="applications-table">
+    <thead>
+    <tr>
+      <th>Мероприятие</th>
+      <th>Описание</th>
+      <th>Статус</th>
+      <th>Комментарий</th>
+      <th>Оборудование</th>
+      <th>Аудитория</th>
+      <th>Имя создателя</th>
+      <th>Время начала</th>
+      <th>Время окончания</th>
+      <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="event : ${events}">
+      <td th:text="${event.title}"></td>
+      <td th:text="${event.description}"></td>
+      <td>
+          <span th:class="${event.status == 'PENDING' ? 'pending' : (event.status == 'APPROVED' ? 'approved' : 'rejected')}">
+            <span th:text="${event.status}"></span>
+          </span>
+      </td>
+      <td>
+        <span th:text="${#lists.size(event.comments) > 0 ? event.comments[0].commentText : 'Нет комментариев'}"></span>
+      </td>
+      <td>
+        <ul>
+          <li th:each="equip : ${event.equipmentRequirements}">
+            <span th:text="${equip.equipment.name}"></span>
+          </li>
+        </ul>
+      </td>
+      <td th:text="${event.classroom.name}"></td>
+      <td th:text="${event.creator.fullName}"></td>
+      <td th:text="${event.schedule != null ? event.schedule.startDateTime : 'Не указано'}"></td>
+      <td th:text="${event.schedule != null ? event.schedule.endDateTime : 'Не указано'}"></td>
+      <td>
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/events/request/{eventId}(eventId=${event.eventId})}" class="btn">Рассмотреть</a>
+      </td>
+
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<script src="/js/scripts.js"></script>
+</body>
+</html>

@@ -1,19 +1,27 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:replace="fragments/header :: head(pageTitle='Мероприятия')">
   <title>Редактировать оборудование</title>
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-<h1>Редактировать оборудование</h1>
-<form action="/equipment/edit/{id}" method="post" th:action="@{/equipment/edit/{id}(id=${equipment.equipmentId})}">
-  <label for="name">Название:</label>
-  <input type="text" id="name" name="name" th:value="${equipment.name}" required><br><br>
+<div th:replace="fragments/header :: header"></div>
+<div class="edit-form-container">
+  <h1>Редактировать оборудование</h1>
+  <form action="/equipment/edit/{id}" method="post" th:action="@{/equipment/edit/{id}(id=${equipment.equipmentId})}">
+    <div class="form-group">
+      <label for="name">Название:</label>
+      <input type="text" id="name" name="name" th:value="${equipment.name}" class="form-control" required>
+    </div>
 
-  <label for="description">Описание:</label>
-  <input type="text" id="description" name="description" th:value="${equipment.description}"><br><br>
+    <div class="form-group">
+      <label for="description">Описание:</label>
+      <input type="text" id="description" name="description" th:value="${equipment.description}" class="form-control">
+    </div>
 
-  <button type="submit">Сохранить изменения</button>
-</form>
-<a href="/equipment">Назад</a>
+    <button type="submit" class="btn">Сохранить изменения</button>
+  </form>
+  <a href="/equipment" class="btn">Назад</a>
+</div>
 </body>
 </html>

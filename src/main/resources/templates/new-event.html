@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Новое мероприятие</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      text-align: center;
+      color: #222;
+      margin-bottom: 30px;
+      font-weight: 300;
+      letter-spacing: 1px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 30px;
+      width: 100%;
+      max-width: 800px;
+      justify-content: center;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      min-width: 250px;
+    }
+
+    label {
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #444;
+    }
+
+    select, input {
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: white;
+      font-size: 16px;
+      color: #333;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: #999;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+    }
+
+    #calendar {
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto 30px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      overflow: hidden;
+      border: 1px solid #eee;
+    }
+
+    .fc-toolbar-title {
+      font-weight: 300;
+      letter-spacing: 1px;
+      color: #333;
+    }
+
+    .fc-button {
+      background: white !important;
+      color: #333 !important;
+      border: 1px solid #ddd !important;
+      text-transform: capitalize;
+      transition: all 0.2s;
+    }
+
+    .fc-button:hover {
+      background: #f8f8f8 !important;
+    }
+
+    .fc-button-primary:not(:disabled):active,
+    .fc-button-primary:not(:disabled).fc-button-active {
+      background: #f0f0f0 !important;
+      color: #333 !important;
+      box-shadow: none !important;
+    }
+
+    .fc-daygrid-day {
+      border: 1px solid #f0f0f0 !important;
+    }
+
+    .fc-daygrid-day-top {
+      justify-content: center;
+    }
+
+    .fc-daygrid-day-number {
+      font-size: 16px;
+      color: #333;
+    }
+
+    .fc-day-today {
+      background-color: rgba(0,0,0,0.03) !important;
+    }
+
+    .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+      font-weight: bold;
+      color: #000;
+    }
+
+    .fc-day-disabled {
+      background: #fafafa !important;
+    }
+
+    .fc-day-disabled .fc-daygrid-day-number {
+      color: #bbb !important;
+    }
+
+    .fc-highlight {
+      background: rgba(0,0,0,0.05) !important;
+    }
+
+    #time-selection {
+      display: none;
+      width: 100%;
+      max-width: 800px;
+      background: white;
+      border-radius: 8px;
+      padding: 25px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-top: 20px;
+    }
+
+    .time-header {
+      text-align: center;
+      margin-bottom: 25px;
+      font-weight: 300;
+      font-size: 22px;
+      color: #333;
+    }
+
+    .time-inputs {
+      display: flex;
+      gap: 30px;
+      margin-bottom: 30px;
+      justify-content: center;
+    }
+
+    .time-input-group {
+      display: flex;
+      flex-direction: column;
+      min-width: 180px;
+    }
+
+    .busy-slots {
+      background: #f9f9f9;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 25px;
+      border: 1px solid #eee;
+    }
+
+    .busy-slots h4 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-weight: 400;
+      color: #555;
+      text-align: center;
+    }
+
+    #busy-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #busy-list li {
+      background: #e0e0e0;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+    }
+
+    .time-cell {
+      padding: 12px 5px;
+      border: 1px solid #e0e0e0;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-radius: 4px;
+      background: white;
+      font-size: 15px;
+    }
+
+    .time-cell:hover:not(.busy) {
+      background: #f5f5f5;
+      border-color: #ccc;
+    }
+
+    .time-cell.busy {
+      background: #f0f0f0;
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    .time-cell.selected {
+      background: #333;
+      color: white;
+      border-color: #333;
+      font-weight: 500;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    button {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      min-width: 150px;
+    }
+
+    #back-btn {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    #back-btn:hover {
+      background: #e0e0e0;
+    }
+
+    #continue-btn {
+      background: #333;
+      color: white;
+      font-weight: 500;
+    }
+
+    #continue-btn:hover {
+      background: #222;
+    }
+
+    #continue-btn:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Создание нового мероприятия</h1>
+
+  <div class="controls">
+    <div class="control-group">
+      <label for="classroom">Аудитория</label>
+      <select id="classroom">
+        <option value="">-- Выберите аудиторию --</option>
+        <option th:each="classroom : ${classrooms}"
+                th:value="${classroom.classroomId}"
+                th:text="${classroom.name}" ></option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="date">Дата</label>
+      <input type="date" id="date">
+    </div>
+  </div>
+
+  <div id="calendar"></div>
+
+  <div id="time-selection">
+    <div class="time-header">Выбор времени для <span id="selected-date-display"></span></div>
+
+    <div class="time-inputs">
+      <div class="time-input-group">
+        <label>Начало</label>
+        <input type="time" id="start-time" step="900">
+      </div>
+
+      <div class="time-input-group">
+        <label>Окончание</label>
+        <input type="time" id="end-time" step="900">
+      </div>
+    </div>
+
+    <div class="busy-slots">
+      <h4>Занятые интервалы</h4>
+      <ul id="busy-list"></ul>
+    </div>
+
+    <div class="time-grid" id="time-grid"></div>
+
+    <div class="actions">
+        <button id="cancel-btn" style="background: #f5f5f5; color: #333;">Отмена</button>
+       <button id="back-btn">Назад</button>
+      <button id="continue-btn" disabled>Продолжить</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/locales/ru.min.js"></script>
+<script>
+    document.getElementById('cancel-btn').addEventListener('click', function() {
+    window.location.href = '/events';
+  });
+  document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    const classroomSelect = document.getElementById('classroom');
+    const dateInput = document.getElementById('date');
+    const timeSelectionDiv = document.getElementById('time-selection');
+    const startTimeInput = document.getElementById('start-time');
+    const endTimeInput = document.getElementById('end-time');
+    const timeGrid = document.getElementById('time-grid');
+    const busyList = document.getElementById('busy-list');
+    const continueBtn = document.getElementById('continue-btn');
+    const backBtn = document.getElementById('back-btn');
+    const selectedDateDisplay = document.getElementById('selected-date-display');
+
+    let busySlots = [];
+    let selectedStart = null;
+    let selectedEnd = null;
+    let selectedDate = null;
+
+    // Инициализация FullCalendar
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      locale: 'ru',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek'
+      },
+      firstDay: 1,
+      dayMaxEvents: true,
+      height: 'auto',
+      selectable: true,
+      select: function(info) {
+        handleDateSelect(info.start);
+      },
+      dateClick: function(info) {
+        handleDateSelect(info.date);
+      },
+      datesSet: function(info) {
+        const currentDate = new Date();
+        calendar.getEvents().forEach(event => event.remove());
+
+        // Отключаем прошедшие даты
+        const allDates = document.querySelectorAll('.fc-day');
+        allDates.forEach(dateEl => {
+          const date = new Date(dateEl.dataset.date);
+          if (date < currentDate.setHours(0,0,0,0)) {
+            dateEl.classList.add('fc-day-disabled');
+          }
+        });
+      }
+    });
+
+    calendar.render();
+
+    function handleDateSelect(date) {
+    if (!classroomSelect.value) {
+      alert('Сначала выберите аудиторию!');
+      return;
+    }
+
+    // ФИКС: Корректное получение даты без смещения
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    selectedDate = `${year}-${month}-${day}`;
+
+    dateInput.value = selectedDate;
+
+    // Форматируем дату для отображения
+    const formattedDate = new Date(date).toLocaleDateString('ru-RU', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    });
+    selectedDateDisplay.textContent = formattedDate;
+
+    loadBusySlots(classroomSelect.value, selectedDate);
+  }
+
+    classroomSelect.addEventListener('change', () => {
+      if (dateInput.value) {
+        selectedDate = dateInput.value;
+        loadBusySlots(classroomSelect.value, selectedDate);
+      }
+    });
+
+    dateInput.addEventListener('change', () => {
+      if (classroomSelect.value) {
+        selectedDate = dateInput.value;
+
+        // Форматируем дату для отображения
+        const formattedDate = new Date(selectedDate).toLocaleDateString('ru-RU', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long'
+        });
+        selectedDateDisplay.textContent = formattedDate;
+
+        loadBusySlots(classroomSelect.value, selectedDate);
+      }
+    });
+
+    function loadBusySlots(classroomId, date) {
+      fetch(`/events/busy-slots?classroomId=${classroomId}&date=${date}`)
+        .then(response => response.json())
+        .then(slots => {
+          busySlots = slots;
+          renderBusySlots();
+          renderTimeGrid();
+          timeSelectionDiv.style.display = 'block';
+          calendarEl.style.display = 'none';
+        })
+        .catch(error => {
+          console.error('Error loading busy slots:', error);
+          alert('Ошибка при загрузке расписания');
+        });
+    }
+
+    function renderBusySlots() {
+      busyList.innerHTML = '';
+      if (busySlots.length === 0) {
+        const li = document.createElement('li');
+        li.textContent = 'Нет занятых интервалов';
+        busyList.appendChild(li);
+      } else {
+        busySlots.forEach(slot => {
+          const li = document.createElement('li');
+          li.textContent = `${slot.startTime} - ${slot.endTime}`;
+          busyList.appendChild(li);
+        });
+      }
+    }
+
+    function renderTimeGrid() {
+      timeGrid.innerHTML = '';
+
+      // Создаем ячейки для каждого 30-минутного интервала (8:00-20:00)
+      for (let hour = 8; hour < 20; hour++) {
+        for (let minute = 0; minute < 60; minute += 30) {
+          const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+          const timeCell = document.createElement('div');
+          timeCell.className = 'time-cell';
+          timeCell.dataset.time = time;
+          timeCell.textContent = time;
+
+          // Помечаем занятые слоты
+          if (isTimeBusy(time)) {
+            timeCell.classList.add('busy');
+          } else {
+            timeCell.addEventListener('click', () => selectTime(time));
+          }
+
+          timeGrid.appendChild(timeCell);
+        }
+      }
+    }
+
+    function isTimeBusy(time) {
+    const [hours, minutes] = time.split(':').map(Number);
+    const totalMinutes = hours * 60 + minutes;
+
+    return busySlots.some(slot => {
+      const [startHours, startMinutes] = slot.startTime.split(':').map(Number);
+      const [endHours, endMinutes] = slot.endTime.split(':').map(Number);
+
+      const startTotal = startHours * 60 + startMinutes;
+      const endTotal = endHours * 60 + endMinutes;
+
+      const busyEndWithBuffer = endTotal + 30;
+
+      // Проверяем пересечение временных интервалов
+      const isOverlapping = totalMinutes >= startTotal && totalMinutes < busyEndWithBuffer;
+
+      // Дополнительная проверка для случаев, когда мероприятие заканчивается ровно в xx:30
+      const isExactlyAtBuffer = totalMinutes === endTotal;
+
+      return isOverlapping || isExactlyAtBuffer;
+    });
+  }
+
+    function selectTime(time) {
+      if (!selectedStart || selectedEnd) {
+        selectedStart = time;
+        selectedEnd = null;
+        startTimeInput.value = time;
+        endTimeInput.value = '';
+        updateSelection();
+      } else {
+        if (compareTimes(selectedStart, time) >= 0) {
+          alert('Время окончания должно быть позже времени начала');
+          return;
+        }
+
+        selectedEnd = time;
+        endTimeInput.value = time;
+        continueBtn.disabled = false;
+        updateSelection();
+      }
+    }
+
+    function updateSelection() {
+      document.querySelectorAll('.time-cell').forEach(cell => {
+        cell.classList.remove('selected');
+
+        if (selectedStart && cell.dataset.time === selectedStart) {
+          cell.classList.add('selected');
+        }
+
+        if (selectedEnd && cell.dataset.time === selectedEnd) {
+          cell.classList.add('selected');
+        }
+      });
+    }
+
+    function compareTimes(timeA, timeB) {
+      const [hoursA, minutesA] = timeA.split(':').map(Number);
+      const [hoursB, minutesB] = timeB.split(':').map(Number);
+
+      if (hoursA !== hoursB) return hoursA - hoursB;
+      return minutesA - minutesB;
+    }
+
+    continueBtn.addEventListener('click', () => {
+      if (!selectedStart || !selectedEnd) {
+        alert('Выберите время начала и окончания');
+        return;
+      }
+
+      const classroomId = classroomSelect.value;
+
+      window.location.href =
+        `/events/create-details?date=${selectedDate}&startTime=${selectedStart}&endTime=${selectedEnd}&classroomId=${classroomId}`;
+    });
+
+    backBtn.addEventListener('click', () => {
+      timeSelectionDiv.style.display = 'none';
+      calendarEl.style.display = 'block';
+      selectedStart = null;
+      selectedEnd = null;
+      startTimeInput.value = '';
+      endTimeInput.value = '';
+      continueBtn.disabled = true;
+    });
+  });
+</script>
+</body>
+</html>

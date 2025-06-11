@@ -1,34 +1,48 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:replace="fragments/header :: head(pageTitle='Мероприятия')">
   <title>Редактировать аудиторию</title>
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-<h1>Редактировать аудиторию</h1>
-<form action="/classrooms/edit/{id}" method="post" th:action="@{/classrooms/edit/{id}(id=${classroom.classroomId})}">
-  <label for="name">Название:</label>
-  <input type="text" id="name" name="name" th:value="${classroom.name}" required><br><br>
+<div th:replace="fragments/header :: header"></div>
+<div class="edit-form-container">
+  <h1>Редактировать аудиторию</h1>
+  <form action="/classrooms/edit/{id}" method="post" th:action="@{/classrooms/edit/{id}(id=${classroom.classroomId})}">
+    <div class="form-group">
+      <label for="name">Название:</label>
+      <input type="text" id="name" name="name" th:value="${classroom.name}" class="form-control" required>
+    </div>
 
-  <label for="capacity">Вместимость:</label>
-  <input type="number" id="capacity" name="capacity" th:value="${classroom.capacity}" required><br><br>
+    <div class="form-group">
+      <label for="capacity">Вместимость:</label>
+      <input type="number" id="capacity" name="capacity" th:value="${classroom.capacity}" class="form-control" required>
+    </div>
 
-  <label for="location">Локация:</label>
-  <input type="text" id="location" name="location" th:value="${classroom.location}" required><br><br>
+    <div class="form-group">
+      <label for="location">Локация:</label>
+      <input type="text" id="location" name="location" th:value="${classroom.location}" class="form-control" required>
+    </div>
 
-  <label for="status">Статус:</label>
-  <input type="checkbox" id="status" name="status" th:checked="${classroom.status}"><br><br>
+    <div class="form-group">
+      <label for="status">Статус:</label>
+      <input type="checkbox" id="status" name="status" th:checked="${classroom.status}" class="form-control">
+    </div>
 
-  <label for="equipment">Оборудование:</label>
-  <select multiple name="equipmentIds" id="equipment">
-    <option th:each="equip : ${equipmentList}"
-            th:value="${equip.equipmentId}"
-            th:text="${equip.name}"
-            th:selected="${classroom.equipmentList.contains(equip)}">
-    </option>
-  </select><br><br>
+    <div class="form-group">
+      <label for="equipment">Оборудование:</label>
+      <select multiple name="equipmentIds" id="equipment" class="form-control">
+        <option th:each="equip : ${equipmentList}"
+                th:value="${equip.equipmentId}"
+                th:text="${equip.name}"
+                th:selected="${classroom.equipmentList.contains(equip)}">
+        </option>
+      </select>
+    </div>
 
-  <button type="submit">Сохранить изменения</button>
-</form>
-<a href="/classrooms">Назад</a>
+    <button type="submit" class="btn">Сохранить изменения</button>
+  </form>
+  <a href="/classrooms" class="btn">Назад</a>
+</div>
 </body>
 </html>

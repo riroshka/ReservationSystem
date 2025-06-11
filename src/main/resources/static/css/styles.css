@@ -1,0 +1,867 @@
+@font-face {
+    font-family: 'Century Gothic';
+    src: url('/fonts/centurygothic.ttf') format('truetype');
+}
+    /* Глобальные стили */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Century Gothic', Arial, sans-serif;
+    }
+
+    body {
+        background-color: #fff;
+        color: #000;
+        line-height: 1.6;
+        font-weight: 300;
+        letter-spacing: 0.5px;
+        font-family: 'Century Gothic', Arial, sans-serif;
+    }
+
+    /* Хедер */
+    header {
+        background-color: #fff;
+        color: #000;
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        min-width: 200px;
+    }
+
+    /* Навигация */
+    nav {
+        display: flex;
+        flex-grow: 1;
+        justify-content: center;
+    }
+
+    .nav-menu {
+        display: flex;
+        list-style: none;
+    }
+
+    .nav-menu li {
+        margin: 0 15px;
+        position: relative;
+    }
+
+    .nav-menu li a {
+        color: #000;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 400;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        padding: 8px 0;
+        position: relative;
+        transition: all 0.3s ease;
+        opacity: 0.9;
+    }
+
+    .nav-menu li a:hover,
+    .nav-menu li a.active {
+        opacity: 1;
+        font-weight: 500;
+    }
+
+    .nav-menu li a:after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 1px;
+        bottom: 0;
+        left: 0;
+        background-color: #000;
+        transition: width 0.3s ease;
+    }
+
+    .nav-menu li a:hover:after,
+    .nav-menu li a.active:after {
+        width: 100%;
+    }
+
+    /* Основной контент */
+    .content {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 300;
+        margin-bottom: 30px;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .page-title:after {
+        content: '';
+        position: absolute;
+        width: 50px;
+        height: 1px;
+        background: #000;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    /* Карточки */
+    .event-card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        margin-bottom: 25px;
+        transition: transform 0.3s;
+        background-color: #fff;
+        border: 1px solid #000;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .event-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 14px 28px rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.08);
+    }
+
+    .card-img-top {
+        width: 100%;
+        height: 500px; /* Увеличена высота для фото */
+        object-fit: cover; /* Растягиваем фото по ширине */
+        border-bottom: 1px solid #eee;
+    }
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center; /* Центрируем карточки по горизонтали */
+        gap: 20px; /* Отступ между карточками */
+    }
+
+    /* Обновленные стили для колонок */
+    .col-md-4, .col-lg-4 {
+        display: flex;
+        justify-content: center; /* Центрируем карточку внутри колонки */
+        width: 100%;
+        max-width: 350px; /* Ограничиваем максимальную ширину карточек */
+        padding: 0 10px;
+    }
+
+    /* Убедитесь, что карточки не растягиваются */
+    .event-card {
+        width: 100%;
+        max-width: 100%;
+        display: block;
+        margin: 0 auto; /* Центрируем карточки внутри колонки */
+    }
+
+    /* Адаптивность: для маленьких экранов, карточки могут занимать всю ширину */
+    @media (max-width: 768px) {
+        .col-md-4, .col-lg-4 {
+            max-width: 100%; /* Для мобильных экранов - одна карточка на всю ширину */
+        }
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .event-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .event-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 0;
+        color: #000;
+    }
+
+    .event-date {
+        background: #fff;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        color: #000;
+    }
+
+    .event-details {
+        display: flex;
+        justify-content: space-between;
+        color: #000;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    /* Описание мероприятия - скрыто по умолчанию */
+    .description-collapse {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+        display: none; /* Скрыто по умолчанию */
+        transition: all 0.3s ease-out; /* Плавное изменение */
+    }
+
+    /* Когда описание раскрыто */
+    .description-collapse.show {
+        display: block; /* Показываем описание */
+    }
+
+    /* Кнопка подробнее */
+    .btn-toggle {
+        width: 100%;
+        text-align: center;
+        background: #fff;
+        border: 1px solid #000;
+        color: #000;
+        border-radius: 10px; /* Закругление кнопки */
+        transition: all 0.3s;
+    }
+
+    .btn-toggle:hover {
+        background: #000;
+        color: #fff;
+    }
+
+    /* Кнопки */
+    .btn {
+        background: #fff;
+        color: #000;
+        border: 1px solid #000;
+        padding: 10px 25px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+        border-radius: 10px; /* Закругление кнопок */
+    }
+
+    .btn:hover {
+        background: #000;
+        color: #fff;
+    }
+
+    /* Адаптивность */
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .col-md-4 {
+        width: 100%;
+        max-width: 25%; /* 3 карточки в ряд */
+        padding: 0 10px;
+    }
+
+    @media (max-width: 768px) {
+        .col-md-4 {
+            width: 100%; /* Одна карточка на мобильных устройствах */
+        }
+    }
+
+/* Стили для формы */
+input[type="text"], input[type="number"], select, button {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+    color: #000;
+}
+/* Стили для таблиц */
+.table-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-container th, .table-container td {
+    padding: 16px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.table-container th {
+    text-align: center;
+    font-weight: bold;
+}
+
+.table-container td {
+    font-size: 18px;
+}
+
+.table-container td a {
+    font-size: 16px;
+    color: #000;
+    text-decoration: none;
+    margin: 0 5px;
+}
+
+.table-container td a:hover {
+    text-decoration: underline;
+}
+
+/* Кнопки */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 5px 0;
+    font-size: 14px;
+    color: #000;
+    background-color: #fff;
+    border: 1px solid #000;
+    border-radius: 4px;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background-color: #1c1c1c
+}
+
+@media (max-width: 768px) {
+    .table th, .table td {
+        padding: 8px 10px;
+    }
+
+    .btn {
+        padding: 6px 12px;
+    }
+
+    form {
+        padding: 15px;
+    }
+}
+/* Контейнер для формы редактирования */
+.edit-form-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Заголовок формы */
+.edit-form-container h1 {
+    text-align: center;
+    margin-top: 20px;
+    color: #000;
+}
+
+/* Подзаголовок формы */
+.edit-form-container h4 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #000;
+}
+
+/* Стили для формы */
+.edit-form-container form {
+    margin-bottom: 20px;
+}
+
+/* Группа полей ввода */
+.edit-form-container form .form-group {
+    margin-bottom: 20px;
+}
+
+/* Лейблы полей ввода */
+.edit-form-container form .form-group label {
+    font-weight: bold;
+    color: #000;
+}
+
+/* Контейнеры для полей ввода */
+.edit-form-container form .form-group .form-control {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Стиль для ошибок валидации */
+.edit-form-container form .form-group .text-danger {
+    color: red;
+}
+
+/* Кнопки */
+.edit-form-container form .btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #000;
+    background-color: #fff;
+    border: 1px solid #000;
+    border-radius: 4px;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.edit-form-container form .btn:hover {
+    background-color: #1c1c1c;
+    color: #fff;
+}
+
+/* Ссылки */
+.edit-form-container a {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.edit-form-container a:hover {
+    text-decoration: underline;
+}
+a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .edit-form-container {
+        padding: 15px;
+        width: 90%;
+    }
+
+    .edit-form-container h1 {
+        font-size: 1.5rem;
+    }
+
+    .edit-form-container form .form-control {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .edit-form-container form .btn {
+        font-size: 12px;
+        padding: 8px 14px;
+    }
+}
+
+/* Стили для таблицы оборудования */
+.equipment-table-container {
+    max-width: 700px; /* Уменьшена ширина контейнера */
+    margin: 40px auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.equipment-table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.equipment-table-container th, .equipment-table-container td {
+    padding: 12px 15px; /* Уменьшены отступы */
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.equipment-table-container th {
+    text-align: center;
+    font-weight: bold;
+}
+
+.equipment-table-container td {
+    font-size: 16px;
+}
+
+.equipment-table-container td a {
+    font-size: 14px;
+    color: #000;
+    text-decoration: none;
+    margin: 0 5px;
+}
+
+.equipment-table-container td a:hover {
+    text-decoration: underline;
+}
+
+/* Кнопки */
+.equipment-table-container .btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 5px 0;
+    font-size: 14px;
+    color: #000;
+    background-color: #fff;
+    border: 1px solid #000;
+    border-radius: 4px;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.equipment-table-container .btn:hover {
+    background-color: #1c1c1c;
+    color: #fff;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .equipment-table-container th, .equipment-table-container td {
+        padding: 8px 10px;
+    }
+
+    .equipment-table-container .btn {
+        padding: 6px 12px;
+    }
+}
+
+/* Контейнер для формы (для регистрации и входа) */
+.form-container {
+    max-width: 400px; /* Уменьшенная ширина формы */
+    margin: 50px auto; /* Центрируем форму */
+    padding: 30px;
+    background: #fff;
+    border: 1px solid #000; /* Тонкая черная рамка */
+    border-radius: 10px; /* Закругленные углы */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Тень */
+}
+
+/* Заголовок формы */
+h1 {
+    text-align: center;
+    color: #000;
+    margin-bottom: 20px;
+}
+
+/* Стили для полей ввода */
+input[type="text"], input[type="email"], input[type="password"], button {
+    width: 100%; /* Заполнение по ширине */
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 14px;
+    border: 1px solid #ddd; /* Легкая рамка */
+    border-radius: 5px; /* Закругленные углы */
+}
+
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+    border-color: #000; /* Темная рамка при фокусе */
+}
+
+/* Кнопка отправки формы */
+button[type="submit"] {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+button[type="submit"]:hover {
+    background-color: #333; /* Темнее при наведении */
+}
+
+/* Ссылка на регистрацию / вход */
+a {
+    text-decoration: none;
+    color: #007bff;
+    text-align: center;
+    display: block;
+    margin-top: 10px;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Стили для ошибок при входе */
+.error-message {
+    color: red;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 20px;
+        max-width: 90%; /* Увеличим ширину на мобильных */
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    input[type="text"], input[type="email"], input[type="password"], button {
+        padding: 10px;
+    }
+}
+
+/* Контейнер таблицы */
+.applications-table-container {
+    max-width: 1600px;  /* Увеличена ширина таблицы */
+    margin: 0 auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Стили для таблицы */
+.applications-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.applications-table th, .applications-table td {
+    padding: 18px;  /* Увеличены отступы для большей читаемости */
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.applications-table th {
+    text-align: center;
+    font-weight: bold;
+}
+
+.applications-table td {
+    font-size: 16px;
+}
+
+.applications-table td a {
+    font-size: 16px;
+    color: #000;
+    text-decoration: none;
+    margin: 0 5px;
+}
+
+.applications-table td a:hover {
+    text-decoration: underline;
+}
+
+/* Стили для формы */
+form {
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+/* Новый стиль для кнопок */
+.black-btn {
+    background-color: #000;  /* Черный фон */
+    color: #fff;  /* Белый текст */
+    border: 1px solid #000;  /* Черная рамка */
+    padding: 12px 25px;  /* Отступы */
+    font-size: 16px;
+    border-radius: 5px;  /* Закругленные углы */
+    cursor: pointer;
+    text-transform: uppercase;
+    width: 100%;  /* Кнопки занимают всю ширину */
+}
+
+.black-btn:hover {
+    background-color: #333;  /* Темный фон при наведении */
+}
+
+.form-no-background {
+    background: none;  /* Убираем фон */
+    border: none;  /* Убираем рамку */
+    padding: 0;  /* Убираем отступы */
+}
+
+/* Новый стиль для кнопки */
+.black-btn {
+    background-color: #000;  /* Черный фон */
+    color: #fff;  /* Белый текст */
+    border: 1px solid #000;  /* Черная рамка */
+    padding: 12px 25px;  /* Отступы */
+    font-size: 16px;
+    border-radius: 5px;  /* Закругленные углы */
+    cursor: pointer;
+    text-transform: uppercase;
+    width: 100%;  /* Кнопки занимают всю ширину */
+}
+
+.black-btn:hover {
+    background-color: #333;  /* Темный фон при наведении */
+}
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Отступ между элементами */
+}
+
+.user-info {
+    font-size: 16px;
+}
+.registration-list-container {
+    display: flex;
+    justify-content: center; /* Центрируем кнопку по горизонтали */
+    margin-top: 20px; /* Отступ сверху */
+}
+
+/* Стили для кнопки "Список регистраций" */
+.registration-list-container .btn-info {
+    width: auto;  /* Убираем фиксированную ширину */
+    padding: 10px 20px;  /* Паддинг для кнопки */
+    font-size: 16px;  /* Размер шрифта */
+    border-radius: 5px;  /* Закругленные углы */
+    text-align: center;
+}
+
+/* Стили для таблицы оборудования */
+.users-table {
+    max-width: 1500px; /* Уменьшена ширина контейнера */
+    margin: 40px auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.users-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.users-table th, .users-table td {
+    padding: 12px 15px; /* Уменьшены отступы */
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.users-table th {
+    text-align: center;
+    font-weight: bold;
+}
+
+.users-table td {
+    font-size: 16px;
+}
+
+.users-table td a {
+    font-size: 14px;
+    color: #000;
+    text-decoration: none;
+    margin: 0 5px;
+}
+
+.users-table td a:hover {
+    text-decoration: underline;
+}
+
+/* Кнопки */
+.users-table .btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 5px 0;
+    font-size: 14px;
+    color: #000;
+    background-color: #fff;
+    border: 1px solid #000;
+    border-radius: 4px;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.users-table .btn:hover {
+    background-color: #1c1c1c;
+    color: #fff;
+}
+
+.center-btn-container {
+    text-align: center;
+    margin-top: 20px;
+}
+.qr-code {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    background: white;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    margin: 0 auto;
+}
+.role-buttons {
+    display: flex;
+    justify-content: center; /* Центрируем кнопки */
+    gap: 10px; /* Расстояние между кнопками */
+    margin-bottom: 20px;
+}
+
+.role-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #000;
+    background-color: #fff;
+    border: 1px solid #000;
+    border-radius: 4px;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.role-btn:hover {
+    background-color: #1c1c1c; /* Черный фон при наведении */
+    color: #fff; /* Белый текст при наведении */
+    border-color: #1c1c1c; /* Черная граница при наведении */
+}
+
+.role-btn.active {
+    background-color: #007bff; /* Синий фон для активной кнопки */
+    color: white;
+    border-color: #007bff; /* Синий цвет границы для активной кнопки */
+}
+

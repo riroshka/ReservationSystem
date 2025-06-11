@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head(pageTitle='Добавление пользователя')">
+  <title>Добавить пользователя</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+<div class="edit-form-container">
+  <h1>Добавление нового пользователя</h1>
+  <form action="/admin/users/create" method="post">
+    <div class="form-group">
+      <label for="fullName">ФИО:</label>
+      <input type="text" id="fullName" name="fullName" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="login">Логин:</label>
+      <input type="text" id="login" name="login" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="passwordHash">Пароль:</label>
+      <input type="password" id="passwordHash" name="passwordHash" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="phoneNumber">Телефон:</label>
+      <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="role">Роль:</label>
+      <select id="role" name="role" class="form-control" required onchange="toggleGroupField()">
+        <option value="">Выберите роль</option>
+        <option value="ADMIN">Администратор</option>
+        <option value="TEACHER">Преподаватель</option>
+        <option value="STUDENT">Студент</option>
+        <option value="GUEST">Гость</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="groupField" style="display:none;">
+      <label for="studentGroup">Учебная группа:</label>
+      <input type="text" id="studentGroup" name="studentGroup" class="form-control">
+    </div>
+
+    <button type="submit" class="btn">Сохранить</button>
+  </form>
+  <a href="/admin/users" class="btn">Назад к списку</a>
+</div>
+<script>
+  function toggleGroupField() {
+    const roleSelect = document.getElementById('role');
+    const groupField = document.getElementById('groupField');
+    if (roleSelect.value === 'STUDENT') {
+      groupField.style.display = 'block'; // Показываем поле группы, если роль 'STUDENT'
+    } else {
+      groupField.style.display = 'none'; // Прячем поле группы для остальных ролей
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:replace="fragments/header :: head(pageTitle='Мероприятия')">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мероприятия</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+<div class="container py-5">
+  <h1 class="mb-4">Мероприятия</h1>
+
+  <!-- Список будущих мероприятий -->
+  <div class="row">
+    <div th:each="event : ${upcomingEvents}" class="col-md-4 col-lg-4">
+      <div class="event-card card">
+        <!-- Фото мероприятия -->
+        <img th:if="${event.photoBase64 != null}"
+             th:src="'data:image/jpeg;base64,' + ${event.photoBase64}"
+             class="card-img-top" alt="Фото мероприятия">
+        <img th:if="${event.photoBase64 == null}"
+             src="/images/placeholder.jpg"
+             class="card-img-top" alt="Нет фото">
+
+        <div class="card-body">
+          <!-- Заголовок и дата -->
+          <div class="event-header">
+            <h5 class="event-title" th:text="${event.title}"></h5>
+            <div class="event-date" th:text="${event.date}"></div>
+          </div>
+
+          <!-- Детали мероприятия -->
+          <div class="event-details">
+            <span th:text="${event.time}"></span>
+            <span th:text="${event.location}"></span>
+          </div>
+
+          <!-- Кнопка и описание -->
+          <button class="btn btn-toggle"
+                  th:attr="data-target='#desc-' + ${event.eventId}"
+                  onclick="toggleDescription(this)">
+            Подробнее
+          </button>
+
+
+          <!-- Описание скрыто по умолчанию (класс 'collapse') -->
+          <div class="description-collapse collapse" th:id="'desc-' + ${event.eventId}">
+            <div th:if="${event.userRegistered and event.upcoming}">
+              <p class="mb-2">Ваш QR-код для посещения мероприятия:</p>
+              <img th:if="${event.qrCode != null}"
+                   th:src="'data:image/png;base64,' + ${event.qrCode}"
+                   alt="QR Code"
+                   class="qr-code mb-3"
+                   style="max-width: 200px; display: block;">
+            </div>
+            <p th:text="${event.description}"></p>
+          </div>
+
+          <!-- Кнопки регистрации -->
+          <div class="mt-3">
+            <!-- Если пользователь зарегистрирован -->
+            <div th:if="${event.userRegistered}">
+              <form th:action="@{/events/cancel/{eventId}(eventId=${event.eventId})}" method="post" class="form-no-background">
+                <button type="submit" class="btn btn-danger w-100">Отменить регистрацию</button>
+              </form>
+              <div class="mt-2 text-center">
+                <small>Вы зарегистрированы</small>
+              </div>
+            </div>
+
+            <!-- Если пользователь не зарегистрирован -->
+            <div th:unless="${event.userRegistered}">
+              <!-- Если есть свободные места -->
+              <div th:if="${!event.full}">
+                <form th:action="@{/events/register/{eventId}(eventId=${event.eventId})}" method="post" class="form-no-background">
+                  <button type="submit" class="btn black-btn">Записаться</button>
+                </form>
+              </div>
+
+              <!-- Если мест нет -->
+              <div th:if="${event.full}" class="alert alert-warning text-center">
+                Мест нет
+              </div>
+            </div>
+
+            <!-- Информация о местах -->
+            <div class="mt-2 text-center">
+              <small>
+                <span th:text="${event.registeredCount}"></span> /
+                <span th:text="${event.capacity}"></span> мест занято
+              </small>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')" class="registration-list-container">
+              <a th:href="@{/admin/events/registrations/{eventId}(eventId=${event.eventId})}" class="btn btn-info">
+                Список регистраций
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Завершенные мероприятия -->
+  <div class="row">
+    <div th:each="event : ${pastEvents}" class="col-md-4 col-lg-4">
+      <div class="event-card card">
+        <!-- Фото мероприятия -->
+        <img th:if="${event.photoBase64 != null}"
+             th:src="'data:image/jpeg;base64,' + ${event.photoBase64}"
+             class="card-img-top" alt="Фото мероприятия">
+        <img th:if="${event.photoBase64 == null}"
+             src="/images/placeholder.jpg"
+             class="card-img-top" alt="Нет фото">
+
+        <div class="card-body">
+          <!-- Заголовок и дата -->
+          <div class="event-header">
+            <h5 class="event-title" th:text="${event.title}"></h5>
+            <div class="event-date" th:text="${event.date}"></div>
+          </div>
+
+          <!-- Детали мероприятия -->
+          <div class="event-details">
+            <span th:text="${event.time}"></span>
+            <span th:text="${event.location}"></span>
+          </div>
+
+          <!-- Кнопка и описание -->
+          <button class="btn btn-toggle"
+                  th:attr="data-target='#desc-' + ${event.eventId}"
+                  onclick="toggleDescription(this)">
+            Подробнее
+          </button>
+
+          <!-- Описание скрыто по умолчанию (класс 'collapse') -->
+          <div class="description-collapse collapse" th:id="'desc-' + ${event.eventId}">
+            <div th:if="${event.userRegistered and event.qrCode != null}">
+              <p class="mb-2" th:text="${event.past} ? 'Ваш QR-код был:' : 'Ваш QR-код для регистрации:'"></p>
+              <img th:src="'data:image/png;base64,' + ${event.qrCode}"
+                   alt="QR Code"
+                   class="qr-code mb-3"
+                   style="max-width: 200px; display: block;">
+            </div>
+
+            <p th:text="${event.description}"></p>
+          </div>
+
+          <!-- Если мероприятие завершено, убираем кнопку записи -->
+          <div class="mt-3">
+            <div class="alert alert-info text-center">
+              Мероприятие завершено
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="/js/scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      lang="ru">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} + ' | ReservationSystem'">ReservationSystem</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<header th:fragment="header">
+    <div class="logo">RESERVATION SYSTEM</div>
+
+    <nav>
+        <ul class="nav-menu">
+            <li><a href="/events">Мероприятия</a></li>
+            <li sec:authorize="hasRole('ADMIN')"><a href="/classrooms">Аудитории</a></li>
+            <li sec:authorize="hasRole('ADMIN')"><a href="/equipment">Оборудование</a></li>
+            <li sec:authorize="hasAnyRole('ADMIN', 'TEACHER')"><a href="/admin/events/requests">Заявки</a></li>
+            <li sec:authorize="hasRole('ADMIN')"><a href="/admin/users">Пользователи</a></li>
+            <li sec:authorize="hasAnyRole('ADMIN', 'TEACHER')"><a href="/events/new">Подача заявки</a></li>
+        </ul>
+    </nav>
+
+    <div class="header-right">
+        <div class="user-info">
+            <span sec:authentication="name"></span>
+        </div>
+        <button class="btn black-btn" onclick="window.location.href='/logout';">Выход</button>
+    </div>
+</header>
+</body>
+</html>

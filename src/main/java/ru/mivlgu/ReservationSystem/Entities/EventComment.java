@@ -1,16 +1,15 @@
 package ru.mivlgu.ReservationSystem.Entities;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "eventcomments")
-public class EventComments {
+public class EventComment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "commentid")
-    private Long commentID;
+    private Long commentId;
 
     @ManyToOne
     @JoinColumn(name = "eventid", nullable = false)
@@ -20,29 +19,29 @@ public class EventComments {
     @JoinColumn(name = "userid", nullable = false)
     private User user;
 
-    @Column(name = "commenttext", nullable = false)
+    @Column(name = "commenttext", nullable = false, columnDefinition = "TEXT")
     private String commentText;
 
     @Column(name = "createdat", nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    public EventComments(Long commentID, Event event, User user, String commentText, LocalDateTime createdAt) {
-        this.commentID = commentID;
+    public EventComment() {
+    }
+
+    public EventComment(Long commentId, Event event, User user, String commentText, LocalDateTime createdAt) {
+        this.commentId = commentId;
         this.event = event;
         this.user = user;
         this.commentText = commentText;
         this.createdAt = createdAt;
     }
 
-    public EventComments() {
+    public Long getCommentId() {
+        return commentId;
     }
 
-    public Long getCommentID() {
-        return commentID;
-    }
-
-    public void setCommentID(Long commentID) {
-        this.commentID = commentID;
+    public void setCommentId(Long commentId) {
+        this.commentId = commentId;
     }
 
     public Event getEvent() {

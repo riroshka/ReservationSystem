@@ -2,9 +2,12 @@ package ru.mivlgu.ReservationSystem.Repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.mivlgu.ReservationSystem.Entities.Classroom;
 import ru.mivlgu.ReservationSystem.Entities.ClassroomEquipment;
+import ru.mivlgu.ReservationSystem.Entities.Schedule;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ClassroomRepository extends JpaRepository<Classroom, Long> {
@@ -17,4 +20,15 @@ public interface ClassroomRepository extends JpaRepository<Classroom, Long> {
 
     @Query("SELECT c FROM Classroom c WHERE c.capacity >= :minCapacity")
     List<Classroom> findByMinCapacity(int minCapacity);
+    List<Classroom> findByCapacityGreaterThanEqual(int minCapacity);
+
+    @Query("SELECT s FROM Schedule s WHERE "
+            + "s.classroom.classroomId = :classroomId AND "
+            + "((s.startDateTime < :end) AND (s.endDateTime > :start))")
+    List<Schedule> findConflictingSchedules(
+            @Param("classroomId") Long classroomId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
+
+    List<Classroom> findByStatus(Boolean status);
 }

@@ -1,19 +1,27 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:replace="fragments/header :: head(pageTitle='Мероприятия')">
   <title>Добавить новое оборудование</title>
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-<h1>Добавить новое оборудование</h1>
-<form action="/equipment/create" method="post">
-  <label for="name">Название:</label>
-  <input type="text" id="name" name="name" required><br><br>
+<div th:replace="fragments/header :: header"></div>
+<div class="edit-form-container">
+  <h1>Добавить новое оборудование</h1>
+  <form action="/equipment/create" method="post">
+    <div class="form-group">
+      <label for="name">Название:</label>
+      <input type="text" id="name" name="name" class="form-control" required>
+    </div>
 
-  <label for="description">Описание:</label>
-  <input type="text" id="description" name="description"><br><br>
+    <div class="form-group">
+      <label for="description">Описание:</label>
+      <input type="text" id="description" name="description" class="form-control">
+    </div>
 
-  <button type="submit">Сохранить</button>
-</form>
-<a href="/equipment">Назад</a>
+    <button type="submit" class="btn">Сохранить</button>
+  </form>
+  <a href="/equipment" class="btn">Назад</a>
+</div>
 </body>
 </html>

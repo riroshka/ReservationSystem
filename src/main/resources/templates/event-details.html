@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head(pageTitle='Создание мероприятия')">
+  <title>Создание мероприятия</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+<div class="edit-form-container">
+  <h1>Создание мероприятия</h1>
+  <form th:action="@{/events/create}" th:object="${event}" method="post">
+    <input type="hidden" th:field="*{classroomId}" />
+    <input type="hidden" th:field="*{date}" />
+    <input type="hidden" th:field="*{startTime}" />
+    <input type="hidden" th:field="*{endTime}" />
+
+    <div class="form-group">
+      <label>Аудитория: <span th:text="${classroom.name}"></span></label>
+    </div>
+
+    <div class="form-group">
+      <label>Дата: <span th:text="*{date}"></span></label>
+    </div>
+
+    <div class="form-group">
+      <label>Время:
+        <span th:text="*{#temporals.format(startTime, 'HH:mm')}"></span> -
+        <span th:text="*{#temporals.format(endTime, 'HH:mm')}"></span>
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label>Название:</label>
+      <input type="text" th:field="*{title}" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label>Описание:</label>
+      <textarea th:field="*{description}" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+      <h3>Оборудование</h3>
+      <div th:each="equipment : ${equipments}">
+        <input type="checkbox"
+               th:value="${equipment.equipmentId}"
+               th:field="*{equipmentIds}" />
+        <label th:text="${equipment.name}"></label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Комментарий к заявке:</label>
+      <textarea th:field="*{comment}" placeholder="Особые пожелания или требования" class="form-control"></textarea>
+    </div>
+
+    <button type="submit" class="btn">Создать заявку</button>
+  </form>
+</div>
+</body>
+</html>
