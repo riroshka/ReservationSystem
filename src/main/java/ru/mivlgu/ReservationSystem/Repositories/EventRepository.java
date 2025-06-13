@@ -16,4 +16,5 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByStatusWithCreator(@Param("status") EventStatus status);
     @Query("SELECT e FROM Event e WHERE e.status = :status AND e.creator = :creator")
     List<Event> findByStatusAndCreator(@Param("status") EventStatus status, @Param("creator") User creator);
+
 }

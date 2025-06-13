@@ -8,7 +8,7 @@
 <div th:replace="fragments/header :: header"></div>
 <div class="edit-form-container">
   <h1>Создание мероприятия</h1>
-  <form th:action="@{/events/create}" th:object="${event}" method="post">
+  <form th:action="@{/events/create}" th:object="${event}" method="post" enctype="multipart/form-data">
     <input type="hidden" th:field="*{classroomId}" />
     <input type="hidden" th:field="*{date}" />
     <input type="hidden" th:field="*{startTime}" />
@@ -47,6 +47,11 @@
                th:field="*{equipmentIds}" />
         <label th:text="${equipment.name}"></label>
       </div>
+    </div>
+
+    <div class="form-group">
+      <label>Фото мероприятия:</label>
+      <input type="file" th:field="*{photo}" class="form-control" />
     </div>
 
     <div class="form-group">

@@ -1,5 +1,6 @@
 package ru.mivlgu.ReservationSystem.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -12,6 +13,7 @@ public class ClassroomEquipment {
     @ManyToOne
     @MapsId("classroomId")  // Использование составного ключа для связывания с Classroom
     @JoinColumn(name = "classroomid")
+    @JsonBackReference
     private Classroom classroom;
 
     @ManyToOne

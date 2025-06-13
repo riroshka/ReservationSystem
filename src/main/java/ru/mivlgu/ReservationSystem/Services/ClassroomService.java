@@ -75,4 +75,19 @@ public class ClassroomService {
     public List<Classroom> findByCapacityAndEquipment(Integer capacity, Long equipmentId) {
         return classroomRepository.findByCapacityLessThanEqualAndEquipmentList_Equipment_EquipmentId(capacity, equipmentId);
     }
+
+    public List<Classroom> filterClassrooms(int minCapacity, int maxCapacity, List<Long> equipmentIds) {
+        System.out.println("Min Capacity: " + minCapacity + ", Max Capacity: " + maxCapacity);
+        System.out.println("Equipment IDs: " + equipmentIds);
+        if (equipmentIds == null || equipmentIds.isEmpty()) {
+            return classroomRepository.findByCapacityBetween(minCapacity, maxCapacity);
+        }
+        return classroomRepository.findByCapacityAndEquipment(minCapacity, maxCapacity, equipmentIds);
+    }
+    /*
+    public List<ClassroomEquipment> getClassroomEquipment(Long classroomId) {
+        return classroomEquipmentRepository.findByClassroom_ClassroomId(classroomId);
+    }
+
+     */
 }

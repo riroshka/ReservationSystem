@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head(pageTitle='Отчет по популярности мероприятий')">
+    <meta charset="UTF-8">
+    <title>Отчет по популярности мероприятий</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="report-container">
+    <h1>Отчет по популярности мероприятий</h1>
+
+    <table class="report-table">
+        <thead>
+        <tr>
+            <th>Название мероприятия</th>
+            <th>Количество регистраций</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="event : ${report}">
+            <td th:text="${event[0]}"></td>
+            <td th:text="${event[1]}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="/js/scripts.js"></script>
+</body>
+</html>

@@ -30,6 +30,7 @@ import ru.mivlgu.ReservationSystem.dto.EventCardDto;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -119,7 +120,7 @@ public class AdminEventController {
         for (User user : registeredUsers) {
             XWPFTableRow row = table.createRow();
             row.getCell(0).setText(user.getFullName());
-            row.getCell(1).setText(user.getStudentGroup());
+            row.getCell(1).setText(user.getStudentGroup() != null ? user.getStudentGroup().getName() : "-");
         }
 
         // Сохраняем в ByteArrayOutputStream для отправки
@@ -140,6 +141,10 @@ public class AdminEventController {
     @GetMapping("/request/{eventId}")
     public String reviewEventRequest(@PathVariable Long eventId, Model model) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException("Event not found"));
+        if (event.getPhoto() != null) {
+            String base64Photo = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(event.getPhoto());
+            model.addAttribute("existingPhoto", base64Photo);
+        }
         model.addAttribute("event", event);
         model.addAttribute("equipment", equipmentRepository.findAll());
         return "admin/event-review";  // Страница для подробного просмотра заявки
@@ -164,8 +169,11 @@ public class AdminEventController {
         template.setDefaultDuration(90L); // Устанавливаем значение по умолчанию
 
         try {
+            // Если фото было выбрано, сохраняем его, иначе оставляем существующее фото
             if (photo != null && !photo.isEmpty()) {
                 template.setPhoto(photo.getBytes());
+            } else if (event.getPhoto() != null) {
+                template.setPhoto(event.getPhoto());
             }
         } catch (IOException e) {
             redirectAttributes.addFlashAttribute("warning", "Ошибка загрузки фото: " + e.getMessage());

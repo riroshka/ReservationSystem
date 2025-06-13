@@ -1,6 +1,7 @@
 package ru.mivlgu.ReservationSystem.Services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -38,7 +39,7 @@ public class UserService implements UserDetailsService {
                 .build();
     }
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findAll(Sort.by(Sort.Order.asc("fullName")));
     }
 
     public User getUserById(Long id) {

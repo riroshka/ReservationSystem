@@ -35,15 +35,16 @@ public class User implements Serializable {
     @Column(nullable = false)
     private UserRole role;
 
-    @Column(name = "studentgroup")
-    private String studentGroup;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "studentgroup")
+    private Group studentGroup;
 
     @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Некорректный номер телефона")
     @Column(name = "phonenumber", nullable = false)
     private String phoneNumber;
 
 
-    public User(Long userId, String fullName, String email, String login, String passwordHash, UserRole role, String studentGroup, String phoneNumber) {
+    public User(Long userId, String fullName, String email, String login, String passwordHash, UserRole role, Group studentGroup, String phoneNumber) {
         this.userId = userId;
         this.fullName = fullName;
         this.email = email;
@@ -105,11 +106,11 @@ public class User implements Serializable {
         this.role = role;
     }
 
-    public String getStudentGroup() {
+    public Group getStudentGroup() {
         return studentGroup;
     }
 
-    public void setStudentGroup(String studentGroup) {
+    public void setStudentGroup(Group studentGroup) {
         this.studentGroup = studentGroup;
     }
 

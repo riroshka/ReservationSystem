@@ -45,9 +45,14 @@
       </select>
     </div>
 
-    <div class="form-group" id="groupField" style="display:none;">
+    <div class="form-group">
       <label for="studentGroup">Учебная группа:</label>
-      <input type="text" id="studentGroup" name="studentGroup" class="form-control">
+      <select id="studentGroup" name="studentGroup" class="form-control" required>
+        <option value="">Выберите группу</option>
+        <th:block th:each="group : ${groups}">
+          <option th:value="${group.id}" th:text="${group.name}"></option>
+        </th:block>
+      </select>
     </div>
 
     <button type="submit" class="btn">Сохранить</button>

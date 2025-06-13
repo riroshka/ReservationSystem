@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head(pageTitle='Отчет по использованию оборудования')">
+  <meta charset="UTF-8">
+  <title>Отчет по использованию оборудования</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="report-container">
+  <h1>Отчет по использованию оборудования</h1>
+
+  <!-- Таблица с данными -->
+  <table class="report-table">
+    <thead>
+    <tr>
+      <th>Название оборудования</th>
+      <th>Количество использований</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="equipment : ${report}">
+      <td th:text="${equipment[0]}"></td>
+      <td th:text="${equipment[1]}"></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <!-- Кнопка для скачивания отчета -->
+  <a href="/admin/reports/download/equipment-usage" class="btn download-btn">Скачать отчет</a>
+</div>
+
+<script src="/js/scripts.js"></script>
+</body>
+</html>

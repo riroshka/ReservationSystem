@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head(pageTitle='Добавить группу')">
+  <title>Добавить группу</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+<div class="edit-form-container">
+  <h1>Добавить новую группу</h1>
+  <form action="/admin/groups/create" method="post">
+    <div class="form-group">
+      <label for="name">Название группы:</label>
+      <input type="text" id="name" name="name" class="form-control" required>
+    </div>
+    <button type="submit" class="btn">Сохранить</button>
+  </form>
+  <a href="/admin/groups" class="btn">Назад</a>
+</div>
+</body>
+</html>

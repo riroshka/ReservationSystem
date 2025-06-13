@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head(pageTitle='Отчеты')">
+  <meta charset="UTF-8">
+  <title>Отчеты</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="reports-container">
+  <h1>Отчеты</h1>
+
+  <!-- Кнопки для разных отчетов -->
+  <div class="report-buttons">
+    <a href="/admin/reports/popularity" class="btn">Отчет по популярности мероприятий</a>
+    <a href="/admin/reports/classroom-usage" class="btn">Отчет по загруженности аудиторий</a>
+    <a href="/admin/reports/equipment-usage" class="btn">Отчет по использованию оборудования</a>
+  </div>
+
+  <!-- Кнопки для скачивания отчетов -->
+  <div class="download-buttons">
+    <a href="/admin/reports/download/popularity" class="btn">Скачать отчет по популярности мероприятий</a>
+    <a href="/admin/reports/download/classroom-usage" class="btn">Скачать отчет по загруженности аудиторий</a>
+    <a href="/admin/reports/download/equipment-usage" class="btn">Скачать отчет по использованию оборудования</a>
+  </div>
+</div>
+
+<script src="/js/scripts.js"></script>
+</body>
+</html>

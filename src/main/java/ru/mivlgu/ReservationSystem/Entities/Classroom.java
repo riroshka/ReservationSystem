@@ -1,5 +1,6 @@
 package ru.mivlgu.ReservationSystem.Entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ public class Classroom {
     private Boolean status = true;
 
     @OneToMany(mappedBy = "classroom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<ClassroomEquipment> equipmentList = new ArrayList<>();
 
     public Classroom(Long classroomId, String name, Integer capacity, String location, Boolean status, List<ClassroomEquipment> equipmentList) {

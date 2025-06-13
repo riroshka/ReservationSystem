@@ -42,6 +42,9 @@ public class Event {
     @Column(name = "qrcodepath")
     private String qrCodePath;
 
+    @Column(name = "photo")
+    private byte[] photo;
+
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     private List<EventEquipmentRequirement> equipmentRequirements = new ArrayList<>();
 
@@ -59,7 +62,7 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     private List<EventRegistration> registrations;
 
-    public Event(Long eventId, String title, String description, LocalDateTime startDateTime, LocalDateTime endDateTime, EventStatus status, User creator, Classroom classroom, String qrCodePath, List<EventEquipmentRequirement> equipmentRequirements, EventTemplate eventTemplate, List<EventComment> comments, Schedule schedule, List<EventRegistration> registrations) {
+    public Event(Long eventId, String title, String description, LocalDateTime startDateTime, LocalDateTime endDateTime, EventStatus status, User creator, Classroom classroom, String qrCodePath, byte[] photo, List<EventEquipmentRequirement> equipmentRequirements, EventTemplate eventTemplate, List<EventComment> comments, Schedule schedule, List<EventRegistration> registrations) {
         this.eventId = eventId;
         this.title = title;
         this.description = description;
@@ -69,6 +72,7 @@ public class Event {
         this.creator = creator;
         this.classroom = classroom;
         this.qrCodePath = qrCodePath;
+        this.photo = photo;
         this.equipmentRequirements = equipmentRequirements;
         this.eventTemplate = eventTemplate;
         this.comments = comments;
@@ -189,5 +193,13 @@ public class Event {
 
     public void setRegistrations(List<EventRegistration> registrations) {
         this.registrations = registrations;
+    }
+
+    public byte[] getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(byte[] photo) {
+        this.photo = photo;
     }
 }

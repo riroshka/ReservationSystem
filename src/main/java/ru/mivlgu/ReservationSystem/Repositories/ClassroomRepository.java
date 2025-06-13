@@ -31,4 +31,15 @@ public interface ClassroomRepository extends JpaRepository<Classroom, Long> {
             @Param("end") LocalDateTime end);
 
     List<Classroom> findByStatus(Boolean status);
+
+    List<Classroom> findByCapacityBetween(int minCapacity, int maxCapacity);
+
+    @Query("SELECT DISTINCT c FROM Classroom c " +
+            "JOIN c.equipmentList ce " +
+            "WHERE c.capacity BETWEEN :minCapacity AND :maxCapacity " +
+            "AND ce.equipment.equipmentId IN :equipmentIds")
+    List<Classroom> findByCapacityAndEquipment(
+            @Param("minCapacity") int minCapacity,
+            @Param("maxCapacity") int maxCapacity,
+            @Param("equipmentIds") List<Long> equipmentIds);
 }

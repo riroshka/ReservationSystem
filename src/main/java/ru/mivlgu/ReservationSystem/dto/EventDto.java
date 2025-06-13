@@ -1,5 +1,7 @@
 package ru.mivlgu.ReservationSystem.dto;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -15,8 +17,9 @@ public class EventDto {
     private List<Long> equipmentIds = new ArrayList<>();
     private Long creatorId;
     private String comment;
+    private MultipartFile photo;
 
-    public EventDto(String title, String description, LocalDate date, LocalTime startTime, LocalTime endTime, Long classroomId, List<Long> equipmentIds, Long creatorId, String comment) {
+    public EventDto(String title, String description, LocalDate date, LocalTime startTime, LocalTime endTime, Long classroomId, List<Long> equipmentIds, Long creatorId, String comment, MultipartFile photo) {
         this.title = title;
         this.description = description;
         this.date = date;
@@ -26,8 +29,8 @@ public class EventDto {
         this.equipmentIds = equipmentIds;
         this.creatorId = creatorId;
         this.comment = comment;
+        this.photo = photo;
     }
-
 
     public Long getCreatorId() {
         return creatorId;
@@ -102,6 +105,14 @@ public class EventDto {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public MultipartFile getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(MultipartFile photo) {
+        this.photo = photo;
     }
 }
 

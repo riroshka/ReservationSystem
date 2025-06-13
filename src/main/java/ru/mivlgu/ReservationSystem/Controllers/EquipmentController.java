@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.mivlgu.ReservationSystem.Entities.Equipment;
 import ru.mivlgu.ReservationSystem.Services.EquipmentService;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/equipment")
 public class EquipmentController {
@@ -59,5 +61,10 @@ public class EquipmentController {
     public String deleteEquipment(@PathVariable Long id) {
         equipmentService.deleteEquipment(id);
         return "redirect:/equipment";  // Перенаправляем на страницу списка оборудования
+    }
+    @GetMapping("/list")
+    @ResponseBody
+    public List<Equipment> getEquipmentList() {
+        return equipmentService.getAllEquipment();
     }
 }

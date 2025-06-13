@@ -24,7 +24,7 @@
       <td th:text="${classroom.name}"></td>
       <td th:text="${classroom.capacity}"></td>
       <td th:text="${classroom.location}"></td>
-      <td th:text="${classroom.status ? 'Активна' : 'Неактивна'}"></td>
+      <td th:text="${classroom.status != null ? (classroom.status ? 'Активна' : 'Неактивна') : 'Неактивна'}"></td>
       <td>
           <span th:each="classroomEquip : ${classroom.equipmentList}"
                 th:text="${classroomEquip.equipment.name}"></span>

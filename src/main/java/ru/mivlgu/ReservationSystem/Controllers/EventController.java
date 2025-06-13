@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.mivlgu.ReservationSystem.Entities.Event;
 import ru.mivlgu.ReservationSystem.Entities.Classroom;
@@ -20,6 +21,7 @@ import ru.mivlgu.ReservationSystem.Services.EventService;
 import ru.mivlgu.ReservationSystem.dto.EventDto;
 import ru.mivlgu.ReservationSystem.dto.TimeSlot;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -124,6 +126,7 @@ public class EventController {
     @PostMapping("/create")
     public String createEvent(
             @ModelAttribute("event") EventDto eventDto,
+            @RequestParam("photo") MultipartFile photo,  // Принимаем MultipartFile
             @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails,
             RedirectAttributes redirectAttributes) {
 
@@ -132,13 +135,16 @@ public class EventController {
                 throw new EntityNotFoundException("Пользователь не аутентифицирован");
             }
 
+            // Преобразуем MultipartFile в byte[]
+            byte[] photoBytes = photo.getBytes();
+
             // Получаем логин из аутентификационных данных
             String email = userDetails.getUsername();
-            Event event = eventService.createEvent(eventDto, email);
+            Event event = eventService.createEvent(eventDto, email, photoBytes);  // Передаем photoBytes в сервис
 
             redirectAttributes.addFlashAttribute("success", "Мероприятие создано!");
             return "redirect:/admin/events/requests";
-        } catch (EntityNotFoundException e) {
+        } catch (EntityNotFoundException | IOException e) {
             System.err.println("Error creating event: " + e.getMessage());
             redirectAttributes.addFlashAttribute("error", "Ошибка создания мероприятия: " + e.getMessage());
             return "redirect:/events/new";

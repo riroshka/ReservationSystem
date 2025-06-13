@@ -37,4 +37,5 @@ public class EquipmentService {
     public void deleteEquipment(Long id) {
         equipmentRepository.deleteById(id);
     }
+
 }

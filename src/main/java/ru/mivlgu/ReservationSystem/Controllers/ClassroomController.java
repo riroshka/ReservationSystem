@@ -1,6 +1,7 @@
 package ru.mivlgu.ReservationSystem.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +38,12 @@ public class ClassroomController {
     @GetMapping("/create")
     public String createClassroomForm(Model model) {
         model.addAttribute("classroom", new Classroom());
-        model.addAttribute("equipmentList", equipmentService.getAllEquipment());  // Передаем список оборудования
+        List<Equipment> equipmentList = equipmentService.getAllEquipment();
+        if (equipmentList.isEmpty()) {
+            model.addAttribute("error", "No equipment available.");
+        } else {
+            model.addAttribute("equipmentList", equipmentList);
+        } // Передаем список оборудования
         return "classrooms/create";  // Форма для добавления аудитории
     }
 
@@ -75,39 +81,43 @@ public class ClassroomController {
 
     // Обработка редактирования аудитории
     @PostMapping("/edit/{id}")
-    public String editClassroom(@PathVariable Long id, @ModelAttribute Classroom classroom, @RequestParam("equipmentIds") List<Long> equipmentIds) {
+    public String editClassroom(@PathVariable Long id,
+                                @ModelAttribute Classroom classroom,
+                                @RequestParam(name = "equipmentIds", required = false) List<Long> equipmentIds) {
         classroom.setClassroomId(id);
         classroom = classroomService.saveClassroom(classroom);
 
-        // Обновление оборудования в аудитории
-        classroomService.getClassroomEquipment(id).forEach(classroomEquipment -> {
-            if (!equipmentIds.contains(classroomEquipment.getEquipment().getEquipmentId())) {
-                classroomService.deleteClassroomEquipment(id, classroomEquipment.getEquipment().getEquipmentId());
-            }
-        });
+        // Если equipmentIds пустой или null, продолжаем без изменений оборудования
+        if (equipmentIds != null) {
+            // Удаляем старое оборудование, которого нет в новом списке
+            classroomService.getClassroomEquipment(id).forEach(classroomEquipment -> {
+                if (!equipmentIds.contains(classroomEquipment.getEquipment().getEquipmentId())) {
+                    classroomService.deleteClassroomEquipment(id, classroomEquipment.getEquipment().getEquipmentId());
+                }
+            });
 
-        for (Long equipmentId : equipmentIds) {
-            if (!classroomService.getClassroomEquipment(id).stream().anyMatch(e -> e.getEquipment().getEquipmentId().equals(equipmentId))) {
-                Equipment equipment = equipmentService.getEquipmentById(equipmentId)
-                        .orElseThrow(() -> new IllegalArgumentException("Invalid equipment ID: " + equipmentId));
+            // Добавляем новое оборудование, если оно еще не добавлено
+            for (Long equipmentId : equipmentIds) {
+                if (!classroomService.getClassroomEquipment(id).stream().anyMatch(e -> e.getEquipment().getEquipmentId().equals(equipmentId))) {
+                    Equipment equipment = equipmentService.getEquipmentById(equipmentId)
+                            .orElseThrow(() -> new IllegalArgumentException("Invalid equipment ID: " + equipmentId));
 
-                // Используем другое имя переменной для составного ключа
-                ClassroomEquipmentId classroomEquipmentId = new ClassroomEquipmentId(classroom.getClassroomId(), equipment.getEquipmentId());
+                    ClassroomEquipmentId classroomEquipmentId = new ClassroomEquipmentId(classroom.getClassroomId(), equipment.getEquipmentId());
+                    ClassroomEquipment classroomEquipment = new ClassroomEquipment();
+                    classroomEquipment.setId(classroomEquipmentId);
+                    classroomEquipment.setClassroom(classroom);
+                    classroomEquipment.setEquipment(equipment);
+                    classroomEquipment.setQuantity(1);  // Количество по умолчанию
 
-                // Создаем новый объект ClassroomEquipment и устанавливаем составной ключ
-                ClassroomEquipment classroomEquipment = new ClassroomEquipment();
-                classroomEquipment.setId(classroomEquipmentId);  // Устанавливаем составной ключ
-                classroomEquipment.setClassroom(classroom);
-                classroomEquipment.setEquipment(equipment);
-                classroomEquipment.setQuantity(1);  // Количество по умолчанию
-
-                // Сохраняем оборудование в аудитории
-                classroomService.saveClassroomEquipment(classroomEquipment);
+                    classroomService.saveClassroomEquipment(classroomEquipment);
+                }
             }
         }
 
         return "redirect:/classrooms";  // Перенаправляем на список аудиторий
     }
+
+
 
     // Удалить аудиторию
     @GetMapping("/delete/{id}")
@@ -136,5 +146,17 @@ public class ClassroomController {
         model.addAttribute("equipmentList", equipmentService.getAllEquipment()); // Получаем список оборудования
         return "classrooms/classroom-list"; // Страница с отфильтрованными аудиториями
     }
+    @GetMapping("/filter")
+    public ResponseEntity<List<Classroom>> filterClassrooms(
+            @RequestParam int minCapacity,
+            @RequestParam int maxCapacity,
+            @RequestParam(required = false) List<Long> equipment) {
 
+        List<Classroom> filtered = classroomService.filterClassrooms(
+                minCapacity,
+                maxCapacity,
+                equipment
+        );
+        return ResponseEntity.ok(filtered);
+    }
 }

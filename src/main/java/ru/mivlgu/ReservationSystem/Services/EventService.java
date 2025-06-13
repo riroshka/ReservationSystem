@@ -61,7 +61,7 @@ public class EventService {
         return eventRepository.findById(id);
     }
 
-    public Event createEvent(EventDto eventDto, String email) {
+    public Event createEvent(EventDto eventDto, String email, byte[] photo) {
         // Получаем полный объект пользователя из базы
         System.out.println("Creating event for user: " + email);
         User creator = userRepository.findByEmail(email)
@@ -80,6 +80,7 @@ public class EventService {
         event.setStatus(EventStatus.PENDING);
         event.setCreator(creator);
         event.setClassroom(classroom);
+        event.setPhoto(photo);
         event = eventRepository.save(event);
 
         // Добавляем в расписание
@@ -138,8 +139,8 @@ public class EventService {
                 .orElseThrow(() -> new EntityNotFoundException("Мероприятие не найдено"));
 
         // Проверка роли пользователя
-        if (!user.getRole().name().equalsIgnoreCase("student")) {
-            throw new IllegalStateException("Только студенты могут регистрироваться на мероприятия");
+        if (user.getRole().name().equalsIgnoreCase("guest")) {
+            throw new IllegalStateException("Только студенты и преподаватели могут регистрироваться на мероприятия");
         }
 
         // Проверка существующей регистрации

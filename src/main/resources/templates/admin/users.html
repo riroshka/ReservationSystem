@@ -11,23 +11,38 @@
 <div class="users-table-container">
     <h1>Управление пользователями</h1>
 
-    <!-- Кнопки фильтрации по ролям -->
-    <div class="role-buttons">
-        <a th:href="@{/admin/users}"
-           class="role-btn"
-           th:classappend="${currentRole == null} ? 'active'">
-            Все
-        </a>
+    <!-- Фильтры -->
+    <div class="filters">
+        <!-- Фильтр по ролям -->
+        <div class="center-btn-container">
+            <a href="/admin/users/create" class="btn">Добавить нового пользователя</a>
+        </div>
 
-        <a th:each="role : ${roles}"
-           th:href="@{/admin/users(role=${role})}"
-           class="role-btn"
-           th:classappend="${currentRole == role} ? 'active'"
-           th:text="${#strings.capitalize(#strings.toLowerCase(role.name()))}">
-        </a>
+        <div class="role-buttons">
+            <a th:href="@{/admin/users}"
+               class="role-btn"
+               th:classappend="${currentRole == null} ? 'active'">
+                Все
+            </a>
+            <a th:each="role : ${roles}"
+               th:href="@{/admin/users(role=${role})}"
+               class="role-btn"
+               th:classappend="${currentRole == role} ? 'active'"
+               th:text="${#strings.capitalize(#strings.toLowerCase(role.name()))}">
+            </a>
+        </div>
+
+        <!-- Фильтр по имени -->
+        <div class="name-filter">
+            <input type="text" id="nameFilter" placeholder="Поиск по имени..." onkeyup="applyNameFilter()" class="form-control" />
+        </div>
+
     </div>
 
+    <!-- Таблица пользователей -->
     <table class="users-table">
+        <h1>Управление пользователями</h1>
+
         <thead>
         <tr>
             <th>ФИО</th>
@@ -39,14 +54,14 @@
             <th>Действия</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody id="userTableBody">
         <tr th:each="user : ${users}">
             <td th:text="${user.fullName}"></td>
             <td th:text="${user.email}"></td>
             <td th:text="${user.login}"></td>
             <td th:text="${user.role}"></td>
             <td th:text="${user.phoneNumber}"></td>
-            <td th:text="${user.studentGroup} ?: '-'"></td>
+            <td th:text="${user.studentGroup != null ? user.studentGroup.name : '-'}"></td>
             <td>
                 <a th:href="@{/admin/users/edit/{id}(id=${user.userId})}" class="btn">Редактировать</a> |
                 <a th:href="@{/admin/users/delete/{id}(id=${user.userId})}" class="btn"
@@ -60,23 +75,42 @@
         </tr>
         </tbody>
     </table>
-
-    <div class="center-btn-container">
-        <a href="/admin/users/create" class="btn">Добавить нового пользователя</a>
-    </div>
 </div>
 
 <script>
-    // обработчик для кнопок фильтрации
-    document.addEventListener('DOMContentLoaded', function() {
-        const buttons = document.querySelectorAll('.role-btn');
-        buttons.forEach(btn => {
-            btn.addEventListener('click', function() {
-                buttons.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-    });
+    function applyNameFilter() {
+        var filter = document.getElementById("nameFilter").value.toLowerCase();
+        var rows = document.getElementById("userTableBody").getElementsByTagName("tr");
+
+        for (var i = 0; i < rows.length; i++) {
+            var nameCell = rows[i].getElementsByTagName("td")[0];  // Колонка с именем
+            if (nameCell) {
+                var name = nameCell.textContent || nameCell.innerText;
+                if (name.toLowerCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    function applyGroupFilter() {
+        var filter = document.getElementById("groupFilter").value;
+        var rows = document.getElementById("userTableBody").getElementsByTagName("tr");
+
+        for (var i = 0; i < rows.length; i++) {
+            var groupCell = rows[i].getElementsByTagName("td")[5];  // Колонка с группой
+            if (groupCell) {
+                var group = groupCell.textContent || groupCell.innerText;
+                if (filter === "" || group === filter) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+    }
 </script>
 
 <script src="/js/scripts.js"></script>

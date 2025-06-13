@@ -7,35 +7,70 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.mivlgu.ReservationSystem.Entities.User;
 import ru.mivlgu.ReservationSystem.Enums.UserRole;
+import ru.mivlgu.ReservationSystem.Services.GroupService;
 import ru.mivlgu.ReservationSystem.Services.UserService;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/users")
 public class UserController {
 
     private final UserService userService;
+    private final GroupService groupService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, GroupService groupService) {
         this.userService = userService;
+        this.groupService = groupService;
     }
-
-    // 1. Список всех пользователей
-    /*
     @GetMapping
-    public String listUsers(Model model) {
-        List<User> users = userService.getAllUsers();
+    public String listUsers(
+            @RequestParam(name = "role", required = false) UserRole role,
+            @RequestParam(name = "nameFilter", required = false) String nameFilter,
+            @RequestParam(name = "groupFilter", required = false) Long groupFilter,
+            Model model) {
+
+        List<User> users;
+
+        // Получаем всех пользователей, фильтруем по роли, если передан параметр
+        if (role != null) {
+            users = userService.getUsersByRole(role);
+        } else {
+            users = userService.getAllUsers();
+        }
+
+        // Применяем фильтр по имени, если он передан
+        if (nameFilter != null && !nameFilter.isEmpty()) {
+            users = users.stream()
+                    .filter(user -> user.getFullName().toLowerCase().contains(nameFilter.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        // Применяем фильтр по группе, если он передан
+        if (groupFilter != null) {
+            users = users.stream()
+                    .filter(user -> user.getStudentGroup() != null && user.getStudentGroup().getId().equals(groupFilter))
+                    .collect(Collectors.toList());
+        }
+
+        // Сортировка по имени
+        users.sort(Comparator.comparing(User::getFullName));
+
         model.addAttribute("users", users);
+        model.addAttribute("roles", UserRole.values());
+        model.addAttribute("currentRole", role);
+        model.addAttribute("groups", groupService.getAllGroups());  // Добавляем список групп для фильтра
         return "admin/users";
     }
-     */
 
     // 2. Форма создания пользователя
     @GetMapping("/create")
     public String createUserForm(Model model) {
         model.addAttribute("user", new User());
+        model.addAttribute("groups", groupService.getAllGroups());
         return "admin/create_user";
     }
 
@@ -46,8 +81,7 @@ public class UserController {
                              Model model) {
 
         // Валидация: для студентов обязательно указание группы
-        if (user.getRole() == UserRole.STUDENT &&
-                (user.getStudentGroup() == null || user.getStudentGroup().isBlank())) {
+        if (user.getRole() == UserRole.STUDENT && user.getStudentGroup() == null) {
             result.rejectValue("studentGroup", "error.user", "Для студента необходимо указать учебную группу");
         }
 
@@ -74,6 +108,7 @@ public class UserController {
     public String editUserForm(@PathVariable("id") Long id, Model model) {
         User user = userService.getUserById(id);
         model.addAttribute("user", user);
+        model.addAttribute("groups", groupService.getAllGroups());
         return "admin/edit_user";
     }
 
@@ -84,8 +119,7 @@ public class UserController {
                              BindingResult result) {
 
         // Валидация: для студентов обязательно указание группы
-        if (updatedUser.getRole() == UserRole.STUDENT &&
-                (updatedUser.getStudentGroup() == null || updatedUser.getStudentGroup().isBlank())) {
+        if (updatedUser.getRole() == UserRole.STUDENT && updatedUser.getStudentGroup() == null) {
             result.rejectValue("studentGroup", "error.user", "Для студента необходимо указать учебную группу");
         }
 
@@ -116,18 +150,5 @@ public class UserController {
         userService.deleteUser(id);
         return "redirect:/admin/users";
     }
-    @GetMapping
-    public String listUsers(@RequestParam(name = "role", required = false) UserRole role, Model model) {
-        List<User> users;
-        if (role != null) {
-            users = userService.getUsersByRole(role);
-        } else {
-            users = userService.getAllUsers();
-        }
 
-        model.addAttribute("users", users);
-        model.addAttribute("roles", UserRole.values());
-        model.addAttribute("currentRole", role);
-        return "admin/users";
-    }
 }
