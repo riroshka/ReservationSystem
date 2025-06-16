@@ -9,9 +9,11 @@ import ru.mivlgu.ReservationSystem.Entities.Equipment;
 import ru.mivlgu.ReservationSystem.Repositories.ClassroomEquipmentRepository;
 import ru.mivlgu.ReservationSystem.Repositories.ClassroomRepository;
 import ru.mivlgu.ReservationSystem.Repositories.EquipmentRepository;
+import ru.mivlgu.ReservationSystem.dto.ClassroomDto;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ClassroomService {
@@ -75,7 +77,7 @@ public class ClassroomService {
     public List<Classroom> findByCapacityAndEquipment(Integer capacity, Long equipmentId) {
         return classroomRepository.findByCapacityLessThanEqualAndEquipmentList_Equipment_EquipmentId(capacity, equipmentId);
     }
-
+/*
     public List<Classroom> filterClassrooms(int minCapacity, int maxCapacity, List<Long> equipmentIds) {
         System.out.println("Min Capacity: " + minCapacity + ", Max Capacity: " + maxCapacity);
         System.out.println("Equipment IDs: " + equipmentIds);
@@ -83,6 +85,20 @@ public class ClassroomService {
             return classroomRepository.findByCapacityBetween(minCapacity, maxCapacity);
         }
         return classroomRepository.findByCapacityAndEquipment(minCapacity, maxCapacity, equipmentIds);
+    }
+
+ */
+    public List<ClassroomDto> filterClassrooms(int minCapacity, int maxCapacity, List<Long> equipmentIds) {
+        List<Classroom> classrooms;
+        if (equipmentIds == null || equipmentIds.isEmpty()) {
+            classrooms = classroomRepository.findByCapacityBetween(minCapacity, maxCapacity);
+        } else {
+            classrooms = classroomRepository.findByCapacityAndEquipment(minCapacity, maxCapacity, equipmentIds);
+        }
+
+        return classrooms.stream()
+                .map(ClassroomDto::new)
+                .collect(Collectors.toList());
     }
     /*
     public List<ClassroomEquipment> getClassroomEquipment(Long classroomId) {

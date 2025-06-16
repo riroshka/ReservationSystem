@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,9 @@ import ru.mivlgu.ReservationSystem.dto.EventDto;
 import ru.mivlgu.ReservationSystem.dto.TimeSlot;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -126,8 +130,8 @@ public class EventController {
     @PostMapping("/create")
     public String createEvent(
             @ModelAttribute("event") EventDto eventDto,
-            @RequestParam("photo") MultipartFile photo,  // Принимаем MultipartFile
-            @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails,
+            @RequestParam("photo") MultipartFile photo,
+            @AuthenticationPrincipal UserDetails userDetails,
             RedirectAttributes redirectAttributes) {
 
         try {
@@ -136,7 +140,19 @@ public class EventController {
             }
 
             // Преобразуем MultipartFile в byte[]
-            byte[] photoBytes = photo.getBytes();
+            //byte[] photoBytes = photo.getBytes();
+
+            byte[] photoBytes = new byte[0];
+
+            // Проверяем, если фото не загружено, используем изображение по умолчанию
+            if (photo.isEmpty()) {
+                InputStream inputStream = getClass().getClassLoader().getResourceAsStream("static/images/placeholder.jpg");
+                if (inputStream != null) {
+                    photoBytes = inputStream.readAllBytes();
+                }
+            } else {
+                photoBytes = photo.getBytes();
+            }
 
             // Получаем логин из аутентификационных данных
             String email = userDetails.getUsername();

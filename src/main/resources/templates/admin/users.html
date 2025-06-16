@@ -28,7 +28,7 @@
                th:href="@{/admin/users(role=${role})}"
                class="role-btn"
                th:classappend="${currentRole == role} ? 'active'"
-               th:text="${#strings.capitalize(#strings.toLowerCase(role.name()))}">
+               th:text="${role.getDisplayName()}">
             </a>
         </div>
 
@@ -59,13 +59,11 @@
             <td th:text="${user.fullName}"></td>
             <td th:text="${user.email}"></td>
             <td th:text="${user.login}"></td>
-            <td th:text="${user.role}"></td>
+            <td th:text="${user.role.getDisplayName()}"></td>
             <td th:text="${user.phoneNumber}"></td>
             <td th:text="${user.studentGroup != null ? user.studentGroup.name : '-'}"></td>
             <td>
-                <a th:href="@{/admin/users/edit/{id}(id=${user.userId})}" class="btn">Редактировать</a> |
-                <a th:href="@{/admin/users/delete/{id}(id=${user.userId})}" class="btn"
-                   onclick="return confirm('Вы уверены что хотите удалить пользователя?')">Удалить</a>
+                <a th:href="@{/admin/users/edit/{id}(id=${user.userId})}" class="btn">Редактировать</a>
             </td>
         </tr>
         <tr th:if="${#lists.isEmpty(users)}">

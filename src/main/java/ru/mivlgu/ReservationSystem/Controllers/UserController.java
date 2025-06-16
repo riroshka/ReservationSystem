@@ -116,15 +116,22 @@ public class UserController {
     @PostMapping("/edit/{id}")
     public String updateUser(@PathVariable("id") Long id,
                              @ModelAttribute("user") User updatedUser,
-                             BindingResult result) {
+                             BindingResult result,
+                             Model model) {
 
-        // Валидация: для студентов обязательно указание группы
-        if (updatedUser.getRole() == UserRole.STUDENT && updatedUser.getStudentGroup() == null) {
+        User existingUser = userService.getUserById(id);
+        boolean isStudent = updatedUser.getRole() == UserRole.STUDENT;
+
+        // Для студентов обязательно указание группы
+        if (isStudent && (updatedUser.getStudentGroup() == null || updatedUser.getStudentGroup().getId() == null)) {
             result.rejectValue("studentGroup", "error.user", "Для студента необходимо указать учебную группу");
+        }
+        // Для не-студентов сбрасываем группу
+        else if (!isStudent) {
+            updatedUser.setStudentGroup(null);
         }
 
         // Проверка уникальности email (исключая текущего пользователя)
-        User existingUser = userService.getUserById(id);
         if (!existingUser.getEmail().equals(updatedUser.getEmail()) &&
                 userService.emailExists(updatedUser.getEmail())) {
             result.rejectValue("email", "error.user", "Пользователь с таким email уже существует");
@@ -136,7 +143,23 @@ public class UserController {
             result.rejectValue("login", "error.user", "Пользователь с таким логином уже существует");
         }
 
+        // Проверка уникальности номера телефона (исключая текущего пользователя)
+        if (!existingUser.getPhoneNumber().equals(updatedUser.getPhoneNumber()) &&
+                userService.phoneNumberExists(updatedUser.getPhoneNumber())) {
+            result.rejectValue("phoneNumber", "error.user", "Пользователь с таким номером телефона уже существует");
+        }
+
+        // Обработка пароля
+        if (updatedUser.getPasswordHash() != null && !updatedUser.getPasswordHash().isEmpty()) {
+            // Если введен новый пароль, хешируем его
+            updatedUser.setPasswordHash(userService.encodePassword(updatedUser.getPasswordHash()));
+        } else {
+            // Если пароль не введен, сохраняем старый
+            updatedUser.setPasswordHash(existingUser.getPasswordHash());
+        }
+
         if (result.hasErrors()) {
+            model.addAttribute("groups", groupService.getAllGroups());
             return "admin/edit_user";
         }
 

@@ -26,12 +26,14 @@
       <td th:text="${classroom.location}"></td>
       <td th:text="${classroom.status != null ? (classroom.status ? 'Активна' : 'Неактивна') : 'Неактивна'}"></td>
       <td>
-          <span th:each="classroomEquip : ${classroom.equipmentList}"
-                th:text="${classroomEquip.equipment.name}"></span>
+        <ul>
+          <li th:each="classroomEquip : ${classroom.equipmentList}">
+            <span th:text="${classroomEquip.equipment.name}"></span>
+          </li>
+        </ul>
       </td>
       <td>
-        <a class="btn" th:href="@{/classrooms/edit/{id}(id=${classroom.classroomId})}">Редактировать</a> |
-        <a class="btn" th:href="@{/classrooms/delete/{id}(id=${classroom.classroomId})}">Удалить</a>
+        <a class="btn" th:href="@{/classrooms/edit/{id}(id=${classroom.classroomId})}">Редактировать</a>
       </td>
     </tr>
     </tbody>

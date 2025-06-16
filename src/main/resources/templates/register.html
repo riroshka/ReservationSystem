@@ -8,6 +8,11 @@
 <div class="form-container">
     <h1>Регистрация</h1>
 
+    <!-- Проверка на ошибку -->
+    <div th:if="${error}" class="error-message">
+        <p th:text="${error}"></p>
+    </div>
+
     <!-- Форма регистрации -->
     <form action="/register" method="post">
         <label for="email">Электронная почта:</label>
@@ -30,5 +35,59 @@
 
     <p>Уже есть аккаунт? <a href="/login">Войти</a></p>
 </div>
+<script>
+    function validateForm() {
+      // Проверка полей вручную, если нужно
+      let isValid = true;
+
+      const fullName = document.getElementById("fullName");
+      const email = document.getElementById("email");
+      const login = document.getElementById("login");
+      const password = document.getElementById("passwordHash");
+      const phoneNumber = document.getElementById("phoneNumber");
+
+      // Валидация ФИО
+      if (!fullName.checkValidity()) {
+        document.getElementById("fullNameError").style.display = 'inline';
+        isValid = false;
+      } else {
+        document.getElementById("fullNameError").style.display = 'none';
+      }
+
+      // Валидация email
+      if (!email.checkValidity()) {
+        document.getElementById("emailError").style.display = 'inline';
+        isValid = false;
+      } else {
+        document.getElementById("emailError").style.display = 'none';
+      }
+
+      // Валидация логина
+      if (!login.checkValidity()) {
+        document.getElementById("loginError").style.display = 'inline';
+        isValid = false;
+      } else {
+        document.getElementById("loginError").style.display = 'none';
+      }
+
+      // Валидация пароля
+      if (!password.checkValidity()) {
+        document.getElementById("passwordError").style.display = 'inline';
+        isValid = false;
+      } else {
+        document.getElementById("passwordError").style.display = 'none';
+      }
+
+      // Валидация номера телефона
+      if (!phoneNumber.checkValidity()) {
+        document.getElementById("phoneNumberError").style.display = 'inline';
+        isValid = false;
+      } else {
+        document.getElementById("phoneNumberError").style.display = 'none';
+      }
+
+      return isValid;
+    }
+</script>
 </body>
 </html>

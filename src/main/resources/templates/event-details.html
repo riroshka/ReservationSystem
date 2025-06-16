@@ -41,13 +41,17 @@
 
     <div class="form-group">
       <h3>Оборудование</h3>
-      <div th:each="equipment : ${equipments}">
-        <input type="checkbox"
-               th:value="${equipment.equipmentId}"
-               th:field="*{equipmentIds}" />
-        <label th:text="${equipment.name}"></label>
+      <div class="checkbox-container">
+        <div th:each="equipment : ${equipments}" class="checkbox">
+          <input type="checkbox"
+                 th:value="${equipment.equipmentId}"
+                 th:field="*{equipmentIds}"
+                 id="equip_${equipment.equipmentId}" />
+          <label th:for="'equip_' + ${equipment.equipmentId}" th:text="${equipment.name}"></label>
+        </div>
       </div>
     </div>
+
 
     <div class="form-group">
       <label>Фото мероприятия:</label>

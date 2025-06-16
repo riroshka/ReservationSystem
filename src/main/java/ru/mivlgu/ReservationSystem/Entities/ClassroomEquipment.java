@@ -1,7 +1,10 @@
 package ru.mivlgu.ReservationSystem.Entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.util.Objects;
 
 @Entity
 @Table(name = "classroomequipment")
@@ -13,11 +16,14 @@ public class ClassroomEquipment {
     @ManyToOne
     @MapsId("classroomId")  // Использование составного ключа для связывания с Classroom
     @JoinColumn(name = "classroomid")
-    @JsonBackReference
+    //@JsonBackReference
+    @JsonIgnore
     private Classroom classroom;
 
     @ManyToOne
     @MapsId("equipmentId")  // Использование составного ключа для связывания с Equipment
+    @JsonIgnore
+    //@JsonBackReference
     @JoinColumn(name = "equipmentid")
     private Equipment equipment;
 
@@ -64,5 +70,18 @@ public class ClassroomEquipment {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClassroomEquipment that = (ClassroomEquipment) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

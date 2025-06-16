@@ -3,77 +3,181 @@
 <head th:replace="fragments/header :: head(pageTitle='Редактирование пользователя')">
   <title>Редактировать пользователя</title>
   <link rel="stylesheet" href="/css/styles.css">
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const role = "[[${user.role}]]";
-      const groupField = document.getElementById('groupField');
-
-      if (role === 'STUDENT') {
-        groupField.style.display = 'block';
-      } else {
-        groupField.style.display = 'none';
-      }
-
-      document.getElementById('role').addEventListener('change', function() {
-        if (this.value === 'STUDENT') {
-          groupField.style.display = 'block';
-        } else {
-          groupField.style.display = 'none';
-        }
-      });
-    });
-  </script>
+  <style>
+    .error-message {
+      color: red;
+      font-size: 0.9em;
+      margin-top: 5px;
+      display: block;
+    }
+  </style>
 </head>
 <body>
 <div th:replace="fragments/header :: header"></div>
 <div class="edit-form-container">
   <h1>Редактирование пользователя</h1>
-  <form th:action="@{/admin/users/edit/{id}(id=${user.userId})}" method="post">
-    <input type="hidden" th:field="${user.userId}" />
+  <form th:action="@{/admin/users/edit/{id}(id=${user.userId})}" method="post" th:object="${user}">
+    <input type="hidden" th:field="*{userId}" />
 
     <div class="form-group">
       <label for="fullName">ФИО:</label>
-      <input type="text" id="fullName" th:field="${user.fullName}" class="form-control" required>
+      <input type="text" id="fullName" class="form-control"
+             th:field="*{fullName}" required minlength="3" maxlength="100"
+             pattern="[A-Za-zА-Яа-яЁё\s]+" title="Введите только буквы и пробелы" />
+      <span th:if="${#fields.hasErrors('fullName')}"
+            th:errors="*{fullName}"
+            class="error-message"></span>
     </div>
 
     <div class="form-group">
       <label for="email">Email:</label>
-      <input type="email" id="email" th:field="${user.email}" class="form-control" required>
+      <input type="email" id="email" class="form-control"
+             th:field="*{email}" required maxlength="100"
+             pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"
+             title="Введите корректный email" />
+      <span th:if="${#fields.hasErrors('email')}"
+            th:errors="*{email}"
+            class="error-message"></span>
     </div>
 
     <div class="form-group">
       <label for="login">Логин:</label>
-      <input type="text" id="login" th:field="${user.login}" class="form-control" required>
+      <input type="text" id="login" class="form-control"
+             th:field="*{login}" required minlength="5" maxlength="20"
+             pattern="[A-Za-z0-9]+"
+             title="Логин может содержать только буквы и цифры" />
+      <span th:if="${#fields.hasErrors('login')}"
+            th:errors="*{login}"
+            class="error-message"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="passwordHash">Новый пароль (оставьте пустым, чтобы не менять):</label>
+      <input type="password" id="passwordHash"
+             class="form-control" th:field="*{passwordHash}"
+             minlength="6" maxlength="20" />
+      <span th:if="${#fields.hasErrors('passwordHash')}"
+            th:errors="*{passwordHash}"
+            class="error-message"></span>
     </div>
 
     <div class="form-group">
       <label for="phoneNumber">Телефон:</label>
-      <input type="tel" id="phoneNumber" th:field="${user.phoneNumber}" class="form-control" required>
+      <input type="tel" id="phoneNumber"
+             class="form-control" th:field="*{phoneNumber}"
+             required pattern="^\+?[0-9]{10,15}$"
+             title="Введите корректный номер телефона" />
+      <span th:if="${#fields.hasErrors('phoneNumber')}"
+            th:errors="*{phoneNumber}"
+            class="error-message"></span>
     </div>
 
     <div class="form-group">
       <label for="role">Роль:</label>
-      <select id="role" th:field="${user.role}" class="form-control" required>
-        <option value="ADMIN">Администратор</option>
-        <option value="TEACHER">Преподаватель</option>
-        <option value="STUDENT">Студент</option>
-        <option value="GUEST">Гость</option>
+      <select id="role" class="form-control"
+              th:field="*{role}" required onchange="toggleGroupField()">
+        <option value="">Выберите роль</option>
+        <option th:each="role : ${T(ru.mivlgu.ReservationSystem.Enums.UserRole).values()}"
+                th:value="${role}"
+                th:text="${role.getDisplayName()}"></option>
       </select>
+      <span th:if="${#fields.hasErrors('role')}"
+            th:errors="*{role}"
+            class="error-message"></span>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" id="groupField" th:classappend="${user.role.name() == 'STUDENT'} ? '' : 'hidden'">
       <label for="studentGroup">Учебная группа:</label>
-      <select id="studentGroup" name="studentGroup" class="form-control" required>
+      <select id="studentGroup" class="form-control"
+              th:field="*{studentGroup}">
         <option value="">Выберите группу</option>
         <th:block th:each="group : ${groups}">
-          <option th:value="${group.id}" th:text="${group.name}"></option>
+          <option th:value="${group.id}"
+                  th:text="${group.name}"
+                  th:selected="${user.studentGroup != null && user.studentGroup.id == group.id}"></option>
         </th:block>
       </select>
+      <span th:if="${#fields.hasErrors('studentGroup')}"
+            th:errors="*{studentGroup}"
+            class="error-message"></span>
     </div>
 
     <button type="submit" class="btn">Сохранить изменения</button>
   </form>
   <a href="/admin/users" class="btn">Назад к списку</a>
 </div>
+<script>
+  function toggleGroupField() {
+    const roleSelect = document.getElementById('role');
+    const groupField = document.getElementById('groupField');
+    const groupSelect = document.getElementById('studentGroup');
+
+    if (roleSelect.value === 'STUDENT') {
+      groupField.style.display = 'block';
+      groupSelect.required = true;
+    } else {
+      groupField.style.display = 'none';
+      groupSelect.required = false;
+      groupSelect.value = '';
+    }
+  }
+
+  // Инициализация при загрузке страницы
+  document.addEventListener('DOMContentLoaded', function() {
+    toggleGroupField();
+  });
+  function validateForm() {
+    // Проверка полей вручную, если нужно
+    let isValid = true;
+
+    const fullName = document.getElementById("fullName");
+    const email = document.getElementById("email");
+    const login = document.getElementById("login");
+    const password = document.getElementById("passwordHash");
+    const phoneNumber = document.getElementById("phoneNumber");
+
+    // Валидация ФИО
+    if (!fullName.checkValidity()) {
+      document.getElementById("fullNameError").style.display = 'inline';
+      isValid = false;
+    } else {
+      document.getElementById("fullNameError").style.display = 'none';
+    }
+
+    // Валидация email
+    if (!email.checkValidity()) {
+      document.getElementById("emailError").style.display = 'inline';
+      isValid = false;
+    } else {
+      document.getElementById("emailError").style.display = 'none';
+    }
+
+    // Валидация логина
+    if (!login.checkValidity()) {
+      document.getElementById("loginError").style.display = 'inline';
+      isValid = false;
+    } else {
+      document.getElementById("loginError").style.display = 'none';
+    }
+
+    // Валидация пароля
+    if (!password.checkValidity()) {
+      document.getElementById("passwordError").style.display = 'inline';
+      isValid = false;
+    } else {
+      document.getElementById("passwordError").style.display = 'none';
+    }
+
+    // Валидация номера телефона
+    if (!phoneNumber.checkValidity()) {
+      document.getElementById("phoneNumberError").style.display = 'inline';
+      isValid = false;
+    } else {
+      document.getElementById("phoneNumberError").style.display = 'none';
+    }
+
+    return isValid;
+  }
+</script>
 </body>
 </html>

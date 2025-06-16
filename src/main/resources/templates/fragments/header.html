@@ -21,6 +21,7 @@
             <li sec:authorize="hasRole('ADMIN')"><a href="/admin/users">Пользователи</a></li>
             <li sec:authorize="hasRole('ADMIN')"><a href="/admin/groups">Группы</a></li>
             <li sec:authorize="hasAnyRole('ADMIN', 'TEACHER')"><a href="/events/new">Подача заявки</a></li>
+            <li sec:authorize="hasRole('ADMIN')"><a href="/admin/reports/list">Отчеты</a></li>
         </ul>
     </nav>
 

@@ -612,11 +612,26 @@ document.addEventListener('DOMContentLoaded', function() {
   const capacityMax = document.getElementById('capacity-max');
   const equipmentSelect = document.getElementById('equipment');
   const classroomResults = document.querySelector('#classroom-results tbody');
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('date').setAttribute('min', today);
 
   let busySlots = [];
   let selectedStart = null;
   let selectedEnd = null;
   let selectedDate = null;
+
+  function isPastDate(date) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  }
+
+  // Функция для округления времени до 15 минут
+  function roundTo15Minutes(time) {
+    const [hours, minutes] = time.split(':').map(Number);
+    const roundedMinutes = Math.round(minutes / 15) * 15;
+    return `${hours.toString().padStart(2, '0')}:${roundedMinutes.toString().padStart(2, '0')}`;
+  }
 
   // Инициализация FullCalendar
   const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -632,27 +647,93 @@ document.addEventListener('DOMContentLoaded', function() {
     height: 'auto',
     selectable: true,
     select: function(info) {
+      if (isPastDate(info.start)) {
+        alert("Нельзя выбирать прошедшие даты");
+        return;
+      }
       handleDateSelect(info.start);
     },
     dateClick: function(info) {
+      if (isPastDate(info.date)) {
+        alert("Нельзя выбирать прошедшие даты");
+        return;
+      }
       handleDateSelect(info.date);
     },
     datesSet: function(info) {
-      const currentDate = new Date();
-      calendar.getEvents().forEach(event => event.remove());
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-      // Отключаем прошедшие даты
       const allDates = document.querySelectorAll('.fc-day');
       allDates.forEach(dateEl => {
         const date = new Date(dateEl.dataset.date);
-        if (date < currentDate.setHours(0,0,0,0)) {
-          dateEl.classList.add('fc-day-disabled');
-        }
+        dateEl.classList.toggle('fc-day-disabled', date < today);
       });
     }
   });
 
   calendar.render();
+
+  // Обработчики для ручного ввода времени
+  startTimeInput.addEventListener('change', function() {
+    if (!this.value) return;
+
+    // Округляем до 15 минут
+    const roundedTime = roundTo15Minutes(this.value);
+    this.value = roundedTime;
+
+    // Если время занято, показываем предупреждение
+    if (isTimeBusy(roundedTime)) {
+      alert('Выбранное время занято!');
+      this.value = '';
+      return;
+    }
+
+    selectedStart = roundedTime;
+    startTimeInput.value = roundedTime;
+
+    // Если есть выбранное окончание, проверяем корректность
+    if (selectedEnd && compareTimes(selectedStart, selectedEnd) >= 0) {
+      alert('Время окончания должно быть позже времени начала');
+      selectedEnd = null;
+      endTimeInput.value = '';
+    }
+
+    updateSelection();
+    continueBtn.disabled = !(selectedStart && selectedEnd);
+  });
+
+  endTimeInput.addEventListener('change', function() {
+    if (!this.value) return;
+
+    // Округляем до 15 минут
+    const roundedTime = roundTo15Minutes(this.value);
+    this.value = roundedTime;
+
+    // Если время занято, показываем предупреждение
+    if (isTimeBusy(roundedTime)) {
+      alert('Выбранное время занято!');
+      this.value = '';
+      return;
+    }
+
+    if (!selectedStart) {
+      alert('Сначала выберите время начала');
+      this.value = '';
+      return;
+    }
+
+    if (compareTimes(selectedStart, roundedTime) >= 0) {
+      alert('Время окончания должно быть позже времени начала');
+      this.value = '';
+      return;
+    }
+
+    selectedEnd = roundedTime;
+    endTimeInput.value = roundedTime;
+    updateSelection();
+    continueBtn.disabled = !(selectedStart && selectedEnd);
+  });
 
   // Загрузка оборудования для фильтра
   function loadEquipmentOptions() {
@@ -663,7 +744,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             equipmentList.forEach(equipment => {
                 const option = document.createElement('option');
-                option.value = equipment.equipmentId;  // Используем правильное поле
+                option.value = equipment.equipmentId;
                 option.textContent = equipment.name;
                 equipmentSelect.appendChild(option);
             });
@@ -672,7 +753,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Ошибка при загрузке оборудования:', error);
             alert('Не удалось загрузить список оборудования');
         });
-}
+  }
 
   // Применение фильтров
   function applyClassroomFilters() {
@@ -685,17 +766,12 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    // Формируем URL запроса
     let url = `/classrooms/filter?minCapacity=${minCapacity}&maxCapacity=${maxCapacity}`;
 
-    // Добавляем оборудование в параметры
     selectedEquipment.forEach(id => {
       url += `&equipment=${id}`;
     });
-    console.log('Request URL:', url);
-console.log('minCapacity:', minCapacity, 'maxCapacity:', maxCapacity, 'selectedEquipment:', selectedEquipment);
 
-    // Загрузка аудиторий по фильтру
     fetch(url)
       .then(response => response.json())
       .then(classrooms => {
@@ -724,12 +800,14 @@ console.log('minCapacity:', minCapacity, 'maxCapacity:', maxCapacity, 'selectedE
 
     classrooms.forEach(classroom => {
       const row = document.createElement('tr');
-
-      // Формируем список оборудования
       let equipmentHtml = '<div class="equipment-list">';
+
       classroom.equipmentList.forEach(eq => {
-        equipmentHtml += `<span class="equipment-tag">${eq.equipment.name} (${eq.quantity})</span>`;
+          equipmentHtml += `<span class="equipment-tag">
+              ${eq.equipment.name} (${eq.quantity})
+          </span>`;
       });
+
       equipmentHtml += '</div>';
 
       row.innerHTML = `
@@ -744,7 +822,6 @@ console.log('minCapacity:', minCapacity, 'maxCapacity:', maxCapacity, 'selectedE
       classroomResults.appendChild(row);
     });
 
-    // Добавляем обработчики выбора аудитории
     document.querySelectorAll('.select-btn').forEach(button => {
       button.addEventListener('click', function() {
         const classroomId = this.getAttribute('data-id');
@@ -755,7 +832,6 @@ console.log('minCapacity:', minCapacity, 'maxCapacity:', maxCapacity, 'selectedE
 
   // Выбор аудитории
   function selectClassroom(classroomId) {
-    // Находим выбранную аудиторию в селекте
     const options = classroomSelect.options;
     for (let i = 0; i < options.length; i++) {
       if (options[i].value === classroomId) {
@@ -764,40 +840,41 @@ console.log('minCapacity:', minCapacity, 'maxCapacity:', maxCapacity, 'selectedE
       }
     }
 
-    // Обновляем календарь, если дата уже выбрана
     if (dateInput.value) {
       selectedDate = dateInput.value;
       loadBusySlots(classroomId, selectedDate);
     }
 
-    // Закрываем модальное окно
     modal.style.display = 'none';
   }
 
   function handleDateSelect(date) {
-  if (!classroomSelect.value) {
-    alert('Сначала выберите аудиторию!');
-    return;
+    if (isPastDate(date)) {
+      alert("Нельзя выбирать прошедшие даты");
+      return;
+    }
+
+    if (!classroomSelect.value) {
+      alert('Сначала выберите аудиторию!');
+      return;
+    }
+
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    selectedDate = `${year}-${month}-${day}`;
+
+    dateInput.value = selectedDate;
+
+    const formattedDate = new Date(date).toLocaleDateString('ru-RU', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    });
+    selectedDateDisplay.textContent = formattedDate;
+
+    loadBusySlots(classroomSelect.value, selectedDate);
   }
-
-  // ФИКС: Корректное получение даты без смещения
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  selectedDate = `${year}-${month}-${day}`;
-
-  dateInput.value = selectedDate;
-
-  // Форматируем дату для отображения
-  const formattedDate = new Date(date).toLocaleDateString('ru-RU', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long'
-  });
-  selectedDateDisplay.textContent = formattedDate;
-
-  loadBusySlots(classroomSelect.value, selectedDate);
-}
 
   classroomSelect.addEventListener('change', () => {
     if (dateInput.value) {
@@ -808,9 +885,16 @@ console.log('minCapacity:', minCapacity, 'maxCapacity:', maxCapacity, 'selectedE
 
   dateInput.addEventListener('change', () => {
     if (classroomSelect.value) {
+      const selected = new Date(dateInput.value);
+
+      if (isPastDate(selected)) {
+        alert("Нельзя выбирать прошедшие даты");
+        dateInput.value = '';
+        return;
+      }
+
       selectedDate = dateInput.value;
 
-      // Форматируем дату для отображения
       const formattedDate = new Date(selectedDate).toLocaleDateString('ru-RU', {
         weekday: 'long',
         day: 'numeric',
@@ -856,16 +940,15 @@ console.log('minCapacity:', minCapacity, 'maxCapacity:', maxCapacity, 'selectedE
   function renderTimeGrid() {
     timeGrid.innerHTML = '';
 
-    // Создаем ячейки для каждого 30-минутного интервала (8:00-20:00)
+    // Создаем ячейки для каждого 15-минутного интервала (8:00-20:00)
     for (let hour = 8; hour < 20; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
+      for (let minute = 0; minute < 60; minute += 15) {
         const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         const timeCell = document.createElement('div');
         timeCell.className = 'time-cell';
         timeCell.dataset.time = time;
         timeCell.textContent = time;
 
-        // Помечаем занятые слоты
         if (isTimeBusy(time)) {
           timeCell.classList.add('busy');
         } else {
@@ -875,30 +958,30 @@ console.log('minCapacity:', minCapacity, 'maxCapacity:', maxCapacity, 'selectedE
         timeGrid.appendChild(timeCell);
       }
     }
+
+    // Обновляем выделение после перерисовки сетки
+    updateSelection();
   }
 
   function isTimeBusy(time) {
-  const [hours, minutes] = time.split(':').map(Number);
-  const totalMinutes = hours * 60 + minutes;
+    const [hours, minutes] = time.split(':').map(Number);
+    const totalMinutes = hours * 60 + minutes;
 
-  return busySlots.some(slot => {
-    const [startHours, startMinutes] = slot.startTime.split(':').map(Number);
-    const [endHours, endMinutes] = slot.endTime.split(':').map(Number);
+    return busySlots.some(slot => {
+      const [startHours, startMinutes] = slot.startTime.split(':').map(Number);
+      const [endHours, endMinutes] = slot.endTime.split(':').map(Number);
 
-    const startTotal = startHours * 60 + startMinutes;
-    const endTotal = endHours * 60 + endMinutes;
+      const startTotal = startHours * 60 + startMinutes;
+      const endTotal = endHours * 60 + endMinutes;
 
-    const busyEndWithBuffer = endTotal + 30;
+      const busyEndWithBuffer = endTotal + 15; // Буфер 15 минут
 
-    // Проверяем пересечение временных интервалов
-    const isOverlapping = totalMinutes >= startTotal && totalMinutes < busyEndWithBuffer;
+      const isOverlapping = totalMinutes >= startTotal && totalMinutes < busyEndWithBuffer;
+      const isExactlyAtBuffer = totalMinutes === endTotal;
 
-    // Дополнительная проверка для случаев, когда мероприятие заканчивается ровно в xx:30
-    const isExactlyAtBuffer = totalMinutes === endTotal;
-
-    return isOverlapping || isExactlyAtBuffer;
-  });
-}
+      return isOverlapping || isExactlyAtBuffer;
+    });
+  }
 
   function selectTime(time) {
     if (!selectedStart || selectedEnd) {
@@ -967,7 +1050,6 @@ console.log('minCapacity:', minCapacity, 'maxCapacity:', maxCapacity, 'selectedE
   // Обработчики для модального окна
   helpButton.addEventListener('click', function() {
     modal.style.display = 'block';
-    // Загружаем оборудование при первом открытии
     if (equipmentSelect.options.length === 0) {
       loadEquipmentOptions();
     }
@@ -977,17 +1059,14 @@ console.log('minCapacity:', minCapacity, 'maxCapacity:', maxCapacity, 'selectedE
     modal.style.display = 'none';
   });
 
-  // Закрытие модального окна при клике вне его
   window.addEventListener('click', function(event) {
     if (event.target === modal) {
       modal.style.display = 'none';
     }
   });
 
-  // Применение фильтров
   applyFiltersButton.addEventListener('click', applyClassroomFilters);
 
-  // Применение фильтров при нажатии Enter в полях ввода
   [capacityMin, capacityMax].forEach(input => {
     input.addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {

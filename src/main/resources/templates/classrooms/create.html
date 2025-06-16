@@ -25,18 +25,22 @@
     </div>
 
     <div class="form-group">
+      <input type="hidden" name="_status" value="on">
       <label for="status">Статус:</label>
-      <input type="checkbox" id="status" name="status" class="form-control">
+      <input type="checkbox" id="status" name="status" class="form-control" checked>
     </div>
 
     <div class="form-group">
-      <label for="equipment">Оборудование:</label>
-      <select multiple name="equipmentIds" id="equipment" class="form-control">
-        <option th:each="equip : ${equipmentList}"
-                th:value="${equip.equipmentId}"
-                th:text="${equip.name}">
-        </option>
-      </select>
+      <label>Оборудование:</label>
+      <div class="checkbox-group">
+        <div th:each="equip : ${equipmentList}" class="checkbox-item">
+          <input type="checkbox"
+                 name="equipmentIds"
+                 th:value="${equip.equipmentId}"
+                 th:id="'equip-' + ${equip.equipmentId}">
+          <label th:for="'equip-' + ${equip.equipmentId}" th:text="${equip.name}"></label>
+        </div>
+      </div>
     </div>
 
     <button type="submit" class="btn">Сохранить</button>

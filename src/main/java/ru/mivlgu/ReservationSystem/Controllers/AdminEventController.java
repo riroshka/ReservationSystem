@@ -67,24 +67,40 @@ public class AdminEventController {
 
     // Страница для списка заявок
     @GetMapping("/requests")
-    public String showEventRequests(Model model, @AuthenticationPrincipal org.springframework.security.core.userdetails.User userDetails) {
+    public String showEventRequests(
+            @RequestParam(name = "status", defaultValue = "PENDING") String statusParam,
+            Model model,
+            @AuthenticationPrincipal org.springframework.security.core.userdetails.User userDetails) {
+
         if (userDetails == null) {
             return "redirect:/login";
         }
 
         Optional<User> optionalUser = userRepository.findByEmail(userDetails.getUsername());
-
         if (optionalUser.isEmpty()) {
             return "redirect:/login";
         }
 
         User user = optionalUser.get();
-
+        EventStatus status = EventStatus.valueOf(statusParam);
         List<Event> events;
+
         if (user.getRole().equals(UserRole.ADMIN)) {
-            events = eventRepository.findByStatusWithCreator(EventStatus.PENDING);
+            if (status == EventStatus.PENDING) {
+                events = eventRepository.findByStatusWithCreator(EventStatus.PENDING);
+            } else if (status == EventStatus.APPROVED) {
+                events = eventRepository.findByStatus(EventStatus.APPROVED);
+            } else {
+                events = eventRepository.findByStatus(EventStatus.REJECTED);
+            }
         } else if (user.getRole().equals(UserRole.TEACHER)) {
-            events = eventRepository.findByStatusAndCreator(EventStatus.PENDING, user);
+            if (status == EventStatus.PENDING) {
+                events = eventRepository.findByStatusAndCreator(EventStatus.PENDING, user);
+            } else if (status == EventStatus.APPROVED) {
+                events = eventRepository.findByStatusAndCreator(EventStatus.APPROVED, user);
+            } else {
+                events = eventRepository.findByStatusAndCreator(EventStatus.REJECTED, user);
+            }
         } else {
             return "redirect:/access-denied";
         }
@@ -92,10 +108,11 @@ public class AdminEventController {
         // Load the schedule for each event
         for (Event event : events) {
             Schedule schedule = scheduleRepository.findByEvent_EventId(event.getEventId());
-            event.setSchedule(schedule); // Set schedule for the event
+            event.setSchedule(schedule);
         }
 
         model.addAttribute("events", events);
+        model.addAttribute("currentStatus", statusParam);
         return "admin/event-requests";
     }
 

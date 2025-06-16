@@ -1,5 +1,7 @@
 package ru.mivlgu.ReservationSystem.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.ArrayList;
@@ -26,17 +28,22 @@ public class Classroom {
     @Column(nullable = false)
     private Boolean status = true;
 
-    @OneToMany(mappedBy = "classroom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "classroom", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<ClassroomEquipment> equipmentList = new ArrayList<>();
+    private List<ClassroomEquipment> equipmentList;
 
-    public Classroom(Long classroomId, String name, Integer capacity, String location, Boolean status, List<ClassroomEquipment> equipmentList) {
+    @OneToMany(mappedBy = "classroom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Schedule> schedules = new ArrayList<>();
+
+    public Classroom(Long classroomId, String name, Integer capacity, String location, Boolean status, List<ClassroomEquipment> equipmentList, List<Schedule> schedules) {
         this.classroomId = classroomId;
         this.name = name;
         this.capacity = capacity;
         this.location = location;
         this.status = status;
         this.equipmentList = equipmentList;
+        this.schedules = schedules;
     }
 
     public Classroom() {
@@ -80,6 +87,14 @@ public class Classroom {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public List<Schedule> getSchedules() {
+        return schedules;
+    }
+
+    public void setSchedules(List<Schedule> schedules) {
+        this.schedules = schedules;
     }
 
     public List<ClassroomEquipment> getEquipmentList() {

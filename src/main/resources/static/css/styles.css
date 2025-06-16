@@ -485,7 +485,7 @@ a:hover {
 
 /* Стили для таблицы оборудования */
 .equipment-table-container {
-    max-width: 700px; /* Уменьшена ширина контейнера */
+    max-width: 900px;
     margin: 40px auto;
     padding: 20px;
     background: #f9f9f9;
@@ -499,7 +499,7 @@ a:hover {
 }
 
 .equipment-table-container th, .equipment-table-container td {
-    padding: 12px 15px; /* Уменьшены отступы */
+    padding: 12px 15px;
     border-bottom: 1px solid #ddd;
     text-align: left;
 }
@@ -925,3 +925,74 @@ form label {
 .groups-table-container td a:hover {
     text-decoration: underline;
 }
+
+/* Стили для контейнера чекбоксов */
+.checkbox-container {
+    display: flex;
+    flex-wrap: wrap; /* Чтобы элементы переносились на новую строку, если их много */
+    gap: 15px; /* Расстояние между элементами */
+    justify-content: flex-start; /* Выравнивание по левому краю */
+}
+
+/* Стили для каждого отдельного чекбокса */
+.checkbox-container {
+    display: flex;
+    flex-wrap: wrap; /* Если слишком много элементов, то они будут переноситься на новую строку */
+    gap: 20px; /* Расстояние между элементами */
+}
+
+.checkbox {
+    display: flex;
+    align-items: center; /* Центрируем текст и чекбокс по вертикали */
+}
+
+.checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px; /* Расстояние между чекбоксом и текстом */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.checkbox input[type="checkbox"]:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.checkbox label {
+    font-size: 16px;
+    color: #000;
+    cursor: pointer;
+    font-weight: normal;
+    transition: all 0.3s ease;
+}
+
+.checkbox input[type="checkbox"]:checked + label {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.checkbox input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+
+.checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .checkbox-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #4a76a8;
+    }

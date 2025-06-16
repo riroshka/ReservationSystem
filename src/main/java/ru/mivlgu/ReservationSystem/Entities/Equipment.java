@@ -1,8 +1,10 @@
 package ru.mivlgu.ReservationSystem.Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,15 +21,20 @@ public class Equipment {
     @Column(name = "description", length = 255)
     private String description;
 
-    @OneToMany(mappedBy = "equipment")
     @JsonIgnore
+    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ClassroomEquipment> classroomEquipments;
 
-    public Equipment(Long equipmentId, String name, String description, List<ClassroomEquipment> classroomEquipments) {
+    @JsonIgnore
+    @OneToMany(mappedBy = "equipment")
+    private List<EventEquipmentRequirement> eventEquipmentRequirements = new ArrayList<>();
+
+    public Equipment(Long equipmentId, String name, String description, List<ClassroomEquipment> classroomEquipments, List<EventEquipmentRequirement> eventEquipmentRequirements) {
         this.equipmentId = equipmentId;
         this.name = name;
         this.description = description;
         this.classroomEquipments = classroomEquipments;
+        this.eventEquipmentRequirements = eventEquipmentRequirements;
     }
 
     public Equipment() {
@@ -63,5 +70,13 @@ public class Equipment {
 
     public void setClassroomEquipments(List<ClassroomEquipment> classroomEquipments) {
         this.classroomEquipments = classroomEquipments;
+    }
+
+    public List<EventEquipmentRequirement> getEventEquipmentRequirements() {
+        return eventEquipmentRequirements;
+    }
+
+    public void setEventEquipmentRequirements(List<EventEquipmentRequirement> eventEquipmentRequirements) {
+        this.eventEquipmentRequirements = eventEquipmentRequirements;
     }
 }

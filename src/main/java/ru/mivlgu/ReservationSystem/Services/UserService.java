@@ -67,7 +67,7 @@ public class UserService implements UserDetailsService {
     public void updateUser(Long id, User updatedUser) {
         User existingUser = getUserById(id);
 
-        // Обновляем только необходимые поля
+        // Обновляем поля
         existingUser.setFullName(updatedUser.getFullName());
         existingUser.setEmail(updatedUser.getEmail());
         existingUser.setLogin(updatedUser.getLogin());
@@ -75,7 +75,31 @@ public class UserService implements UserDetailsService {
         existingUser.setRole(updatedUser.getRole());
         existingUser.setStudentGroup(updatedUser.getStudentGroup());
 
+        // Обновляем пароль только если он был изменен
+        if (!existingUser.getPasswordHash().equals(updatedUser.getPasswordHash())) {
+            existingUser.setPasswordHash(updatedUser.getPasswordHash());
+        }
+
         userRepository.save(existingUser);
+    }
+
+    public boolean phoneNumberExists(String phoneNumber) {
+        return userRepository.findByPhoneNumber(phoneNumber).isPresent();
+    }
+    public String encodePassword(String password) {
+        return passwordEncoder.encode(password);
+    }
+    public void registerUser(User user) {
+        if (emailExists(user.getEmail())) {
+            throw new IllegalArgumentException("Этот email уже зарегистрирован");
+        }
+        if (loginExists(user.getLogin())) {
+            throw new IllegalArgumentException("Этот логин уже занят");
+        }
+        // Хеширование пароля перед сохранением
+        user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
+        user.setRole(UserRole.GUEST);
+        userRepository.save(user);
     }
 
     public void deleteUser(Long id) {

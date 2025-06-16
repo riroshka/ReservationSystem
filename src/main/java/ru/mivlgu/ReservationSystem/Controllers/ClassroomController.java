@@ -11,7 +11,9 @@ import ru.mivlgu.ReservationSystem.Entities.ClassroomEquipmentId;
 import ru.mivlgu.ReservationSystem.Entities.Equipment;
 import ru.mivlgu.ReservationSystem.Services.ClassroomService;
 import ru.mivlgu.ReservationSystem.Services.EquipmentService;
+import ru.mivlgu.ReservationSystem.dto.ClassroomDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -49,21 +51,26 @@ public class ClassroomController {
 
     // Обработка добавления новой аудитории
     @PostMapping("/create")
-    public String createClassroom(@ModelAttribute Classroom classroom, @RequestParam("equipmentIds") List<Long> equipmentIds) {
+    public String createClassroom(@ModelAttribute Classroom classroom,
+                                  @RequestParam(value = "status", defaultValue = "false") Boolean status,
+                                  @RequestParam(value = "equipmentIds", required = false) List<Long> equipmentIds) {
         // Сохраняем аудиторию
+        classroom.setStatus(status);
         classroom = classroomService.saveClassroom(classroom);
 
-        // Добавляем оборудование в аудиторию
-        for (Long equipmentId : equipmentIds) {
-            Equipment equipment = equipmentService.getEquipmentById(equipmentId)
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid equipment ID: " + equipmentId));
-            ClassroomEquipment classroomEquipment = new ClassroomEquipment();
-            ClassroomEquipmentId id = new ClassroomEquipmentId(classroom.getClassroomId(), equipment.getEquipmentId());
-            classroomEquipment.setId(id);
-            classroomEquipment.setClassroom(classroom);
-            classroomEquipment.setEquipment(equipment);
-            classroomEquipment.setQuantity(1);  // Количество по умолчанию
-            classroomService.saveClassroomEquipment(classroomEquipment);
+        if (equipmentIds != null && !equipmentIds.isEmpty())
+        {
+            for (Long equipmentId : equipmentIds) {
+                Equipment equipment = equipmentService.getEquipmentById(equipmentId)
+                        .orElseThrow(() -> new IllegalArgumentException("Invalid equipment ID: " + equipmentId));
+                ClassroomEquipment classroomEquipment = new ClassroomEquipment();
+                ClassroomEquipmentId id = new ClassroomEquipmentId(classroom.getClassroomId(), equipment.getEquipmentId());
+                classroomEquipment.setId(id);
+                classroomEquipment.setClassroom(classroom);
+                classroomEquipment.setEquipment(equipment);
+                classroomEquipment.setQuantity(1);  // Количество по умолчанию
+                classroomService.saveClassroomEquipment(classroomEquipment);
+            }
         }
 
         return "redirect:/classrooms";  // Перенаправляем на список аудиторий
@@ -83,38 +90,59 @@ public class ClassroomController {
     @PostMapping("/edit/{id}")
     public String editClassroom(@PathVariable Long id,
                                 @ModelAttribute Classroom classroom,
+                                @RequestParam(value = "status", defaultValue = "false") Boolean status,
                                 @RequestParam(name = "equipmentIds", required = false) List<Long> equipmentIds) {
-        classroom.setClassroomId(id);
-        classroom = classroomService.saveClassroom(classroom);
 
-        // Если equipmentIds пустой или null, продолжаем без изменений оборудования
+        // Получаем существующую аудиторию из базы
+        Classroom existingClassroom = classroomService.getClassroomById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid classroom ID: " + id));
+
+        // Обновляем основные поля
+        existingClassroom.setName(classroom.getName());
+        existingClassroom.setCapacity(classroom.getCapacity());
+        existingClassroom.setLocation(classroom.getLocation());
+        existingClassroom.setStatus(status);
+
+        // Обновляем оборудование
         if (equipmentIds != null) {
-            // Удаляем старое оборудование, которого нет в новом списке
-            classroomService.getClassroomEquipment(id).forEach(classroomEquipment -> {
-                if (!equipmentIds.contains(classroomEquipment.getEquipment().getEquipmentId())) {
-                    classroomService.deleteClassroomEquipment(id, classroomEquipment.getEquipment().getEquipmentId());
-                }
-            });
+            // Создаем копию текущего оборудования для безопасного удаления
+            List<ClassroomEquipment> equipmentToRemove = new ArrayList<>(existingClassroom.getEquipmentList());
 
-            // Добавляем новое оборудование, если оно еще не добавлено
+            // Удаляем оборудование, которого нет в новом списке
+            for (ClassroomEquipment ce : equipmentToRemove) {
+                if (!equipmentIds.contains(ce.getEquipment().getEquipmentId())) {
+                    existingClassroom.getEquipmentList().remove(ce);
+                    classroomService.deleteClassroomEquipment(id, ce.getEquipment().getEquipmentId());
+                }
+            }
+
+            // Добавляем новое оборудование
             for (Long equipmentId : equipmentIds) {
-                if (!classroomService.getClassroomEquipment(id).stream().anyMatch(e -> e.getEquipment().getEquipmentId().equals(equipmentId))) {
+                boolean exists = existingClassroom.getEquipmentList().stream()
+                        .anyMatch(ce -> ce.getEquipment().getEquipmentId().equals(equipmentId));
+
+                if (!exists) {
                     Equipment equipment = equipmentService.getEquipmentById(equipmentId)
                             .orElseThrow(() -> new IllegalArgumentException("Invalid equipment ID: " + equipmentId));
 
-                    ClassroomEquipmentId classroomEquipmentId = new ClassroomEquipmentId(classroom.getClassroomId(), equipment.getEquipmentId());
                     ClassroomEquipment classroomEquipment = new ClassroomEquipment();
-                    classroomEquipment.setId(classroomEquipmentId);
-                    classroomEquipment.setClassroom(classroom);
+                    ClassroomEquipmentId ceId = new ClassroomEquipmentId(id, equipmentId);
+                    classroomEquipment.setId(ceId);
+                    classroomEquipment.setClassroom(existingClassroom);
                     classroomEquipment.setEquipment(equipment);
-                    classroomEquipment.setQuantity(1);  // Количество по умолчанию
+                    classroomEquipment.setQuantity(1);
 
-                    classroomService.saveClassroomEquipment(classroomEquipment);
+                    existingClassroom.getEquipmentList().add(classroomEquipment);
                 }
             }
+        } else {
+            // Если equipmentIds null, удаляем все оборудование
+            existingClassroom.getEquipmentList().clear();
         }
 
-        return "redirect:/classrooms";  // Перенаправляем на список аудиторий
+        // Сохраняем обновленную аудиторию
+        classroomService.saveClassroom(existingClassroom);
+        return "redirect:/classrooms";
     }
 
 
@@ -146,6 +174,7 @@ public class ClassroomController {
         model.addAttribute("equipmentList", equipmentService.getAllEquipment()); // Получаем список оборудования
         return "classrooms/classroom-list"; // Страница с отфильтрованными аудиториями
     }
+/*
     @GetMapping("/filter")
     public ResponseEntity<List<Classroom>> filterClassrooms(
             @RequestParam int minCapacity,
@@ -159,4 +188,42 @@ public class ClassroomController {
         );
         return ResponseEntity.ok(filtered);
     }
+
+ */
+    @GetMapping("/filter")
+    public ResponseEntity<List<ClassroomDto>> filterClassrooms(
+            @RequestParam int minCapacity,
+            @RequestParam int maxCapacity,
+            @RequestParam(required = false) List<Long> equipment) {
+
+        List<ClassroomDto> filtered = classroomService.filterClassrooms(
+                minCapacity,
+                maxCapacity,
+                equipment
+        );
+        return ResponseEntity.ok(filtered);
+    }
+
+  /*
+    @GetMapping("/filter")
+    public ResponseEntity<List<ClassroomDto>> filterClassrooms(
+            @RequestParam int minCapacity,
+            @RequestParam int maxCapacity,
+            @RequestParam(required = false) List<Long> equipment) {
+
+        List<Classroom> filtered = classroomService.filterClassrooms(
+                minCapacity,
+                maxCapacity,
+                equipment
+        );
+
+        // Преобразуем в DTO
+        List<ClassroomDto> result = filtered.stream()
+                .map(ClassroomDto::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(result);
+    }
+
+     */
 }

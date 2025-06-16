@@ -1,31 +1,193 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: head(pageTitle='Отчеты')">
-  <meta charset="UTF-8">
-  <title>Отчеты</title>
-  <link rel="stylesheet" href="/css/styles.css">
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head(pageTitle='Отчеты')}">
+  <title>Администрирование отчетов</title>
 </head>
 <body>
 <div th:replace="fragments/header :: header"></div>
 
-<div class="reports-container">
-  <h1>Отчеты</h1>
+<main class="container mt-4">
+  <h1 class="mb-4">Администрирование отчетов</h1>
 
-  <!-- Кнопки для разных отчетов -->
-  <div class="report-buttons">
-    <a href="/admin/reports/popularity" class="btn">Отчет по популярности мероприятий</a>
-    <a href="/admin/reports/classroom-usage" class="btn">Отчет по загруженности аудиторий</a>
-    <a href="/admin/reports/equipment-usage" class="btn">Отчет по использованию оборудования</a>
+  <div class="row">
+    <!-- Карточка: Популярность мероприятий -->
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Популярность мероприятий</h5>
+          <p class="card-text">Анализ посещаемости мероприятий по количеству регистраций</p>
+          <button class="btn btn-primary report-btn" data-type="popularity">Сформировать</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Карточка: Загруженность аудиторий -->
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Загруженность аудиторий</h5>
+          <p class="card-text">Коэффициент использования аудиторий за период</p>
+          <button class="btn btn-primary report-btn" data-type="utilization">Сформировать</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Карточка: Использование оборудования -->
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Использование оборудования</h5>
+          <p class="card-text">Анализ востребованности оборудования</p>
+          <button class="btn btn-primary report-btn" data-type="equipment">Сформировать</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Карточка: Регистрации пользователей -->
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Регистрации пользователей</h5>
+          <p class="card-text">Статистика регистраций на мероприятия</p>
+          <button class="btn btn-primary report-btn" data-type="registrations">Сформировать</button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Кнопки для скачивания отчетов -->
-  <div class="download-buttons">
-    <a href="/admin/reports/download/popularity" class="btn">Скачать отчет по популярности мероприятий</a>
-    <a href="/admin/reports/download/classroom-usage" class="btn">Скачать отчет по загруженности аудиторий</a>
-    <a href="/admin/reports/download/equipment-usage" class="btn">Скачать отчет по использованию оборудования</a>
+  <!-- Фильтры отчетов -->
+  <div class="card mb-4 d-none" id="reportFilters">
+    <div class="card-body">
+      <h5 class="card-title">Параметры отчета</h5>
+      <form id="filterForm">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="startDate" class="form-label">Дата начала</label>
+            <input type="date" class="form-control" id="startDate">
+          </div>
+          <div class="col-md-6">
+            <label for="endDate" class="form-label">Дата окончания</label>
+            <input type="date" class="form-control" id="endDate">
+          </div>
+        </div>
+        <button type="button" class="btn btn-success" id="generateReport">Сгенерировать</button>
+      </form>
+    </div>
   </div>
-</div>
 
-<script src="/js/scripts.js"></script>
+  <!-- Результаты отчета -->
+  <div class="card d-none" id="reportResults">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="card-title mb-0" id="reportTitle"></h5>
+        <button class="btn btn-success" id="downloadReport">
+          <i class="bi bi-download me-1"></i> Скачать отчет
+        </button>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-striped" id="reportTable">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      let currentReportType = '';
+      const reportFilters = document.getElementById('reportFilters');
+      const reportResults = document.getElementById('reportResults');
+      const reportTitle = document.getElementById('reportTitle');
+      const reportTable = document.getElementById('reportTable');
+
+      // Обработка выбора отчета
+      document.querySelectorAll('.report-btn').forEach(button => {
+          button.addEventListener('click', function() {
+              currentReportType = this.dataset.type;
+              showFilters();
+          });
+      });
+
+      // Показать фильтры
+      function showFilters() {
+          reportFilters.classList.remove('d-none');
+          reportResults.classList.add('d-none');
+
+          // Установка заголовка в зависимости от типа отчета
+          const titles = {
+              popularity: 'Популярность мероприятий',
+              utilization: 'Загруженность аудиторий',
+              equipment: 'Использование оборудования',
+              registrations: 'Регистрации пользователей'
+          };
+          document.querySelector('#reportFilters .card-title').textContent = titles[currentReportType];
+      }
+
+      let currentFilters = {};
+
+      // Генерация отчета
+      document.getElementById('generateReport').addEventListener('click', function() {
+          const startDate = document.getElementById('startDate').value;
+          const endDate = document.getElementById('endDate').value;
+
+           currentFilters = {
+            type: currentReportType,
+            start: startDate,
+            end: endDate
+        };
+
+          fetch(`/admin/reports/generate?type=${currentReportType}&start=${startDate}&end=${endDate}`)
+              .then(response => response.json())
+              .then(data => renderReport(data))
+              .catch(error => console.error('Ошибка:', error));
+      });
+
+      document.getElementById('downloadReport').addEventListener('click', function() {
+        if (!currentFilters.type) {
+            alert('Сначала сгенерируйте отчет');
+            return;
+        }
+
+        const params = new URLSearchParams(currentFilters).toString();
+        window.location.href = `/admin/reports/download?${params}`;
+    });
+
+      // Отрисовка отчета
+      function renderReport(data) {
+          reportTitle.textContent = document.querySelector('#reportFilters .card-title').textContent;
+          reportFilters.classList.add('d-none');
+          reportResults.classList.remove('d-none');
+
+          // Очистка таблицы
+          reportTable.querySelector('thead').innerHTML = '';
+          reportTable.querySelector('tbody').innerHTML = '';
+
+          // Создание заголовков
+          const thead = reportTable.querySelector('thead');
+          const headerRow = document.createElement('tr');
+
+          data.headers.forEach(header => {
+              const th = document.createElement('th');
+              th.textContent = header;
+              headerRow.appendChild(th);
+          });
+          thead.appendChild(headerRow);
+
+          // Заполнение данными
+          const tbody = reportTable.querySelector('tbody');
+          data.rows.forEach(row => {
+              const tr = document.createElement('tr');
+              row.forEach(cell => {
+                  const td = document.createElement('td');
+                  td.textContent = cell;
+                  tr.appendChild(td);
+              });
+              tbody.appendChild(tr);
+          });
+      }
+  });
+</script>
 </body>
 </html>
